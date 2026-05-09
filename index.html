@@ -2,208 +2,187 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HHACK V2 - Pro Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>THE THRONE VIP - REAL WOOD ⚔️</title>
     <style>
         :root {
-            --primary-orange: #ff6600;
-            --dark-wood: #3d1f05;
-            --light-wood: #8b5a2b;
+            --neon-orange: #ff6600;
+            --wood-gradient: linear-gradient(145deg, #5d4037, #2d1d1a);
+            --inner-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5);
         }
 
         body {
-            background-color: #0a0a0a;
-            color: var(--primary-orange);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
-            height: 100vh;
+            background-color: #050505; color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; overflow: hidden; display: flex; justify-content: center;
         }
 
-        /* Header UI */
-        .header {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(to bottom, #1a0f00, #000);
-            border-bottom: 2px solid var(--primary-orange);
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+        /* شريط النيون البرتقالي */
+        .neon-line {
+            position: absolute; top: 0; width: 100%; height: 5px;
+            background: var(--neon-orange); box-shadow: 0 0 20px var(--neon-orange);
+            z-index: 1000;
         }
 
-        /* Game Container */
-        #game-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-            margin-top: 20px;
+        .main-frame {
+            width: 100%; max-width: 400px; height: 100vh;
+            background: #111; display: flex; flex-direction: column; position: relative;
         }
 
-        /* 3D Wood Tiles */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            padding: 15px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
+        /* شاشة الدخول */
+        .overlay {
+            position: absolute; inset: 0; background: #000; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
 
+        /* منطقة اللعب - 10 صفوف */
+        .scroll-area {
+            flex: 1; overflow-y: auto; padding: 20px 20px 100px 20px;
+            display: flex; flex-direction: column-reverse; gap: 12px;
+        }
+
+        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; opacity: 0.2; pointer-events: none; transition: 0.4s; }
+        .row.active { opacity: 1; pointer-events: auto; transform: scale(1.02); }
+
+        /* الخشب الـ 3D */
         .tile {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(145deg, var(--light-wood), var(--dark-wood));
-            border-radius: 8px;
-            box-shadow: 5px 5px 10px #000, -2px -2px 5px rgba(255,255,255,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            position: relative;
+            height: 65px; background: var(--wood-gradient); border-radius: 8px;
+            box-shadow: 0 4px 0 #1a0f0d, 0 8px 15px rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .tile:active { transform: translateY(4px); box-shadow: 0 0 0 #1a0f0d; }
+
+        .tile.win { background: #000 !important; box-shadow: inset 0 0 15px #e74c3c; border: 1px solid #e74c3c; }
+        .tile.win::after { content: '🍷'; filter: drop-shadow(0 0 5px red); }
+
+        .tile.lose { background: #000 !important; box-shadow: inset 0 0 15px #8e44ad; border: 1px solid #8e44ad; }
+        .tile.lose::after { content: '🧪'; filter: drop-shadow(0 0 5px purple); }
+
+        /* الأزرار والشات */
+        .footer { padding: 15px; background: #000; border-top: 2px solid var(--neon-orange); text-align: center; }
+        .btn-new {
+            background: #000; color: var(--neon-orange); border: 2px solid var(--neon-orange);
+            padding: 10px 30px; border-radius: 5px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,102,0,0.3);
         }
 
-        .tile:active {
-            transform: translateZ(-10px) scale(0.95);
-            box-shadow: inset 2px 2px 5px #000;
-        }
-
-        /* Controls */
-        .controls {
-            margin-top: 30px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            background: black;
-            color: var(--primary-orange);
-            border: 2px solid var(--primary-orange);
-            padding: 12px 25px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background: var(--primary-orange);
-            color: black;
-            box-shadow: 0 0 20px var(--primary-orange);
-        }
-
-        /* Terminal Text */
-        #terminal {
-            width: 80%;
-            height: 100px;
-            background: rgba(0,0,0,0.8);
-            border-left: 3px solid var(--primary-orange);
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 10px;
-            color: #00ff00;
-            overflow-y: hidden;
-        }
-
-        /* Login Screen */
-        #login-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+        #ghost-chat {
+            position: absolute; right: 5px; top: 150px; width: 70px; font-size: 8px;
+            color: #0f0; font-family: monospace; pointer-events: none; opacity: 0.6;
         }
 
         input {
-            background: #111;
-            border: 1px solid var(--primary-orange);
-            color: white;
-            padding: 10px;
-            margin-bottom: 10px;
-            text-align: center;
+            width: 80%; padding: 12px; margin: 10px; background: #000; border: 1px solid var(--neon-orange);
+            color: white; text-align: center; border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <span>ID: 13551996</span>
-    <span>$:~ROOT@THRONE_SERVER</span>
-</div>
+    <div class="neon-line"></div>
 
-<div id="login-screen">
-    <h1 style="text-shadow: 0 0 10px var(--primary-orange);">SYSTEM ACCESS</h1>
-    <input type="text" id="access-code" placeholder="ENTER ACCESS CODE">
-    <button onclick="startGame()">CONNECT</button>
-</div>
+    <div class="main-frame">
+        <div id="ghost-chat"></div>
 
-<div id="game-container">
-    <div class="controls">
-        <button onclick="resetGame()">NEW GAME</button>
+        <!-- شاشة الباسورد والـ ID -->
+        <div id="gate" class="overlay">
+            <h2 style="color:var(--neon-orange)">THE THRONE HACK</h2>
+            <input type="password" id="p_pass" placeholder="PASSWORD">
+            <input type="text" id="p_id" placeholder="PLAYER ID">
+            <button class="btn-new" onclick="unlock()">ACCESS SYSTEM</button>
+        </div>
+
+        <div style="padding:10px; font-size:10px; color:var(--neon-orange); display:flex; justify-content:space-between; background:#000;">
+            <span id="user_display">ID: --------</span>
+            <span>STATUS: BYPASS_ACTIVE</span>
+        </div>
+
+        <div id="grid-container" class="scroll-area"></div>
+
+        <div class="footer">
+            <button class="btn-new" onclick="initGame()">NEW GAME 🔄</button>
+        </div>
     </div>
 
-    <div class="grid" id="grid">
-        <!-- Tiles will be generated here -->
-    </div>
+    <audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mpeg"></audio>
 
-    <div id="terminal">
-        > INITIALIZING BYPASS...<br>
-        > WAITING FOR UPLINK...
-    </div>
-</div>
+    <script>
+        let currentLevel = 0;
+        let bombMap = [];
 
-<!-- Audio for hacker vibes -->
-<audio id="bg-music" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-    const code = "1234"; // كود الدخول
-    const music = document.getElementById('bg-music');
-
-    function startGame() {
-        const input = document.getElementById('access-code').value;
-        if(input === code) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('game-container').style.display = 'flex';
-            generateGrid();
-            music.play();
-            updateTerminal("ACCESS GRANTED. WELCOME OPERATOR.");
-        } else {
-            alert("WRONG CODE!");
+        function unlock() {
+            if(document.getElementById('p_pass').value === "102075" && document.getElementById('p_id').value === "13551996") {
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('user_display').innerText = "ID: 13551996";
+                document.getElementById('bg-music').play();
+                initGame();
+                startGhost();
+            } else { alert("ACCESS DENIED"); }
         }
-    }
 
-    function generateGrid() {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        for (let i = 0; i < 25; i++) {
-            const tile = document.createElement('div');
-            tile.className = 'tile';
-            tile.onclick = () => {
-                tile.style.background = 'linear-gradient(145deg, #00ff00, #004400)';
-                tile.style.boxShadow = '0 0 15px #00ff00';
-                updateTerminal("DATA PACKET " + Math.random().toString(16).slice(2,8) + " EXTRACTED.");
-            };
-            grid.appendChild(tile);
+        function initGame() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+            currentLevel = 0;
+            bombMap = [];
+
+            for(let i=0; i<10; i++) {
+                const row = document.createElement('div');
+                row.className = 'row' + (i === 0 ? ' active' : '');
+                row.id = `row-${i}`;
+
+                // قواعد الصعوبة المطلوبة:
+                let bombCount = (i < 4) ? 1 : (i < 7) ? 2 : (i < 9) ? 3 : 4;
+                let bombs = [];
+                while(bombs.length < bombCount) {
+                    let r = Math.floor(Math.random() * 5);
+                    if(!bombs.includes(r)) bombs.push(r);
+                }
+                bombMap.push(bombs);
+
+                for(let j=0; j<5; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.onclick = () => playMove(i, j);
+                    row.appendChild(tile);
+                }
+                container.appendChild(row);
+            }
         }
-    }
 
-    function resetGame() {
-        generateGrid();
-        updateTerminal("SYSTEM REBOOTED. STARTING NEW SESSION.");
-    }
+        function playMove(r, c) {
+            if(r !== currentLevel) return;
+            const tile = document.getElementById(`row-${r}`).children[c];
 
-    function updateTerminal(text) {
-        const term = document.getElementById('terminal');
-        term.innerHTML += `<br>> ${text}`;
-        term.scrollTop = term.scrollHeight;
-    }
-</script>
+            if(bombMap[r].includes(c)) {
+                tile.classList.add('lose');
+                // لا يخرج من اللعبة، يظل في نفس الدور
+            } else {
+                tile.classList.add('win');
+                setTimeout(() => {
+                    if(currentLevel < 9) {
+                        document.getElementById(`row-${currentLevel}`).classList.remove('active');
+                        currentLevel++;
+                        document.getElementById(`row-${currentLevel}`).classList.add('active');
+                        document.getElementById('grid-container').scrollBy({top: -85, behavior: 'smooth'});
+                    } else {
+                        alert("👑 THE THRONE IS YOURS!");
+                    }
+                }, 400);
+            }
+        }
 
+        function startGhost() {
+            const chat = document.getElementById('ghost-chat');
+            const msgs = ["INIT..", "0x88F", "BYPASS", "DECRYPT", "VOID", "ROOT"];
+            setInterval(() => {
+                const m = document.createElement('div');
+                m.innerText = msgs[Math.floor(Math.random()*msgs.length)] + "_" + Math.random().toString(36).slice(2,4);
+                chat.appendChild(m);
+                if(chat.childNodes.length > 10) chat.removeChild(chat.firstChild);
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
