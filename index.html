@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>THE THRONE - HACK V2 ⚔️</title>
+    <style>
+        :root {
+            --neon-orange: #ff6600;
+            --wood-dark: #3d2b1f;
+            --poison-purple: #9b59b6;
+            --wine-red: #e74c3c;
+            --3d-shadow: 0 6px 0 #662900;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body {
+            background-color: #000; color: white;
+            font-family: 'Courier New', monospace;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; overflow: hidden;
+        }
+
+        /* نيون برتقالي متحرك - اللمسة النهائية */
+        .neon-bar {
+            position: absolute; top: 0; width: 100%; height: 6px;
+            background: var(--neon-orange);
+            box-shadow: 0 0 15px var(--neon-orange), 0 0 30px var(--neon-orange);
+            z-index: 10000;
+            animation: glow-pulse 1.5s infinite alternate;
+        }
+
+        @keyframes glow-pulse {
+            from { opacity: 0.7; box-shadow: 0 0 10px var(--neon-orange); }
+            to { opacity: 1; box-shadow: 0 0 25px var(--neon-orange), 0 0 40px var(--neon-orange); }
+        }
+
+        .main-container {
+            width: 100%; max-width: 420px; height: 100vh;
+            background: #0d0d0d; border-left: 2px solid #222; border-right: 2px solid #222;
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        /* شات الأشباح الجانبي */
+        #ghost-monitor {
+            position: absolute; right: 8px; top: 120px; width: 85px;
+            height: 280px; background: rgba(0,0,0,0.8);
+            font-size: 10px; color: #39ff14; overflow: hidden;
+            pointer-events: none; padding: 6px; border-right: 3px solid var(--neon-orange);
+            z-index: 50; opacity: 0.8;
+        }
+
+        /* طبقات الدخول */
+        .gate-screen {
+            position: absolute; inset: 0; background: #000; z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
+        }
+
+        .btn-3d {
+            background: linear-gradient(145deg, #ff6600, #cc5200);
+            color: #000; border: none; padding: 18px 45px;
+            border-radius: 12px; font-weight: 900; cursor: pointer;
+            box-shadow: var(--3d-shadow); transition: 0.1s;
+            font-size: 1.1rem;
+        }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #662900; }
+
+        input {
+            width: 100%; padding: 15px; margin: 12px 0; border-radius: 10px;
+            border: 2px solid var(--neon-orange); background: #000; color: #fff;
+            text-align: center; font-size: 1.2rem; box-shadow: inset 0 0 10px rgba(255,102,0,0.2);
+        }
+
+        .game-grid {
+            flex: 1; overflow-y: auto; padding: 25px 100px 25px 20px;
+            display: flex; flex-direction: column-reverse; gap: 12px;
+        }
+
+        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; opacity: 0.1; pointer-events: none; }
+        .row.active { opacity: 1; pointer-events: auto; }
+
+        .cell {
+            height: 65px; background: var(--wood-dark); border-radius: 6px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; cursor: pointer; transition: 0.2s;
+            box-shadow: inset 0 0 15px #000, 0 4px 0 #1a110d;
+        }
+
+        .cell.win { background: #111 !important; box-shadow: 0 0 20px var(--wine-red); border: 1px solid var(--wine-red); }
+        .cell.win::after { content: '🍷'; }
+
+        .cell.lose { background: #111 !important; box-shadow: 0 0 20px var(--poison-purple); border: 1px solid var(--poison-purple); opacity: 0.6; pointer-events: none; }
+        .cell.lose::after { content: '🧪'; }
+
+        .game-footer { padding: 20px; background: #000; border-top: 2px solid #1a1a1a; text-align: center; }
+
+    </style>
+</head>
+<body>
+
+    <div class="neon-bar"></div>
+
+    <div class="main-container">
+        <div id="ghost-monitor"></div>
+
+        <!-- الباسورد -->
+        <div id="p-gate" class="gate-screen">
+            <h1 style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">HACKER ACCESS</h1>
+            <input type="password" id="p-code" placeholder="ENTER CODE">
+            <button class="btn-3d" onclick="unlockGate('p')">PROCEED</button>
+        </div>
+
+        <!-- الـ ID -->
+        <div id="i-gate" class="gate-screen" style="display:none">
+            <h2 style="color:var(--neon-orange)">VALIDATE IDENTITY</h2>
+            <input type="text" id="i-val" placeholder="PLAYER ID">
+            <button class="btn-3d" onclick="unlockGate('i')">ACTIVATE</button>
+        </div>
+
+        <!-- واجهة اللعبة -->
+        <div style="background:#000; padding:12px; border-bottom:1px solid #333; font-size:11px; display:flex; justify-content:space-between; color:var(--neon-orange)">
+            <span>ROOT@THRONE_SERVER:~$</span>
+            <span id="usr-tag"></span>
+        </div>
+
+        <div id="grid" class="game-grid"></div>
+
+        <div class="game-footer">
+            <button class="btn-3d" style="padding:12px 25px; font-size:14px" onclick="location.reload()">KILL SESSION [ESC]</button>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_P = "102075", MASTER_ID = "13551996";
+        let lv = 0, bombs = [];
+
+        // شات الأشباح الاحترافي
+        const logs = ["SCANNING..", "IP_FOUND", "BYPASS_V2", "SQL_INJECT", "ROOT_FOUND", "THRONE_OK", "ERR_404", "0x00FF1"];
+        function runGhost() {
+            const mon = document.getElementById('ghost-monitor');
+            const div = document.createElement('div');
+            div.innerText = logs[Math.floor(Math.random()*logs.length)] + "_" + Math.random().toString(36).slice(2,5);
+            mon.appendChild(div);
+            if(mon.childNodes.length > 20) mon.removeChild(mon.firstChild);
+            setTimeout(runGhost, 700);
+        }
+
+        function unlockGate(mode) {
+            if(mode === 'p') {
+                if(document.getElementById('p-code').value === MASTER_P) {
+                    document.getElementById('p-gate').style.display='none';
+                    document.getElementById('i-gate').style.display='flex';
+                }
+            } else {
+                if(document.getElementById('i-val').value === MASTER_ID) {
+                    document.getElementById('i-gate').style.display='none';
+                    document.getElementById('usr-tag').innerText = "ID:" + MASTER_ID;
+                    runGame(); runGhost();
+                }
+            }
+        }
+
+        function runGame() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = ''; lv = 0; bombs = [];
+            for(let i=0; i<10; i++) {
+                const row = document.createElement('div');
+                row.className = 'row' + (i === 0 ? ' active' : '');
+                row.id = `lv-${i}`;
+
+                let c = (i < 4) ? 1 : (i < 7) ? 2 : (i < 9) ? 3 : 4;
+                let p = [];
+                while(p.length < c) {
+                    let r = Math.floor(Math.random()*5);
+                    if(!p.includes(r)) p.push(r);
+                }
+                bombs.push(p);
+
+                for(let j=0; j<5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.onclick = () => tap(i, j);
+                    row.appendChild(cell);
+                }
+                grid.appendChild(row);
+            }
+        }
+
+        function tap(r, c) {
+            if(r !== lv) return;
+            const target = document.getElementById(`lv-${r}`).children[c];
+            if(bombs[r].includes(c)) {
+                target.classList.add('lose');
+            } else {
+                target.classList.add('win');
+                setTimeout(() => {
+                    if(lv < 9) {
+                        document.getElementById(`lv-${lv}`).classList.remove('active');
+                        lv++;
+                        document.getElementById(`lv-${lv}`).classList.add('active');
+                        document.getElementById('grid').scrollBy({top: -85, behavior: 'smooth'});
+                    } else {
+                        alert("KING OF THE THRONE! 👑");
+                        location.reload();
+                    }
+                }, 400);
+            }
+        }
+    </script>
+</body>
+</html>
