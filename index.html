@@ -1,212 +1,209 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>THE THRONE - HACK V2 ⚔️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HHACK V2 - Pro Edition</title>
     <style>
         :root {
-            --neon-orange: #ff6600;
-            --wood-dark: #3d2b1f;
-            --poison-purple: #9b59b6;
-            --wine-red: #e74c3c;
-            --3d-shadow: 0 6px 0 #662900;
+            --primary-orange: #ff6600;
+            --dark-wood: #3d1f05;
+            --light-wood: #8b5a2b;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
-            background-color: #000; color: white;
-            font-family: 'Courier New', monospace;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; overflow: hidden;
+            background-color: #0a0a0a;
+            color: var(--primary-orange);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            height: 100vh;
         }
 
-        /* نيون برتقالي متحرك - اللمسة النهائية */
-        .neon-bar {
-            position: absolute; top: 0; width: 100%; height: 6px;
-            background: var(--neon-orange);
-            box-shadow: 0 0 15px var(--neon-orange), 0 0 30px var(--neon-orange);
-            z-index: 10000;
-            animation: glow-pulse 1.5s infinite alternate;
+        /* Header UI */
+        .header {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(to bottom, #1a0f00, #000);
+            border-bottom: 2px solid var(--primary-orange);
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
         }
 
-        @keyframes glow-pulse {
-            from { opacity: 0.7; box-shadow: 0 0 10px var(--neon-orange); }
-            to { opacity: 1; box-shadow: 0 0 25px var(--neon-orange), 0 0 40px var(--neon-orange); }
+        /* Game Container */
+        #game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 20px;
         }
 
-        .main-container {
-            width: 100%; max-width: 420px; height: 100vh;
-            background: #0d0d0d; border-left: 2px solid #222; border-right: 2px solid #222;
-            display: flex; flex-direction: column; position: relative;
+        /* 3D Wood Tiles */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
         }
 
-        /* شات الأشباح الجانبي */
-        #ghost-monitor {
-            position: absolute; right: 8px; top: 120px; width: 85px;
-            height: 280px; background: rgba(0,0,0,0.8);
-            font-size: 10px; color: #39ff14; overflow: hidden;
-            pointer-events: none; padding: 6px; border-right: 3px solid var(--neon-orange);
-            z-index: 50; opacity: 0.8;
+        .tile {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, var(--light-wood), var(--dark-wood));
+            border-radius: 8px;
+            box-shadow: 5px 5px 10px #000, -2px -2px 5px rgba(255,255,255,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
         }
 
-        /* طبقات الدخول */
-        .gate-screen {
-            position: absolute; inset: 0; background: #000; z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
+        .tile:active {
+            transform: translateZ(-10px) scale(0.95);
+            box-shadow: inset 2px 2px 5px #000;
         }
 
-        .btn-3d {
-            background: linear-gradient(145deg, #ff6600, #cc5200);
-            color: #000; border: none; padding: 18px 45px;
-            border-radius: 12px; font-weight: 900; cursor: pointer;
-            box-shadow: var(--3d-shadow); transition: 0.1s;
-            font-size: 1.1rem;
+        /* Controls */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
         }
-        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #662900; }
+
+        button {
+            background: black;
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            padding: 12px 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: var(--primary-orange);
+            color: black;
+            box-shadow: 0 0 20px var(--primary-orange);
+        }
+
+        /* Terminal Text */
+        #terminal {
+            width: 80%;
+            height: 100px;
+            background: rgba(0,0,0,0.8);
+            border-left: 3px solid var(--primary-orange);
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 10px;
+            color: #00ff00;
+            overflow-y: hidden;
+        }
+
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
 
         input {
-            width: 100%; padding: 15px; margin: 12px 0; border-radius: 10px;
-            border: 2px solid var(--neon-orange); background: #000; color: #fff;
-            text-align: center; font-size: 1.2rem; box-shadow: inset 0 0 10px rgba(255,102,0,0.2);
+            background: #111;
+            border: 1px solid var(--primary-orange);
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: center;
         }
-
-        .game-grid {
-            flex: 1; overflow-y: auto; padding: 25px 100px 25px 20px;
-            display: flex; flex-direction: column-reverse; gap: 12px;
-        }
-
-        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; opacity: 0.1; pointer-events: none; }
-        .row.active { opacity: 1; pointer-events: auto; }
-
-        .cell {
-            height: 65px; background: var(--wood-dark); border-radius: 6px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.8rem; cursor: pointer; transition: 0.2s;
-            box-shadow: inset 0 0 15px #000, 0 4px 0 #1a110d;
-        }
-
-        .cell.win { background: #111 !important; box-shadow: 0 0 20px var(--wine-red); border: 1px solid var(--wine-red); }
-        .cell.win::after { content: '🍷'; }
-
-        .cell.lose { background: #111 !important; box-shadow: 0 0 20px var(--poison-purple); border: 1px solid var(--poison-purple); opacity: 0.6; pointer-events: none; }
-        .cell.lose::after { content: '🧪'; }
-
-        .game-footer { padding: 20px; background: #000; border-top: 2px solid #1a1a1a; text-align: center; }
-
     </style>
 </head>
 <body>
 
-    <div class="neon-bar"></div>
+<div class="header">
+    <span>ID: 13551996</span>
+    <span>$:~ROOT@THRONE_SERVER</span>
+</div>
 
-    <div class="main-container">
-        <div id="ghost-monitor"></div>
+<div id="login-screen">
+    <h1 style="text-shadow: 0 0 10px var(--primary-orange);">SYSTEM ACCESS</h1>
+    <input type="text" id="access-code" placeholder="ENTER ACCESS CODE">
+    <button onclick="startGame()">CONNECT</button>
+</div>
 
-        <!-- الباسورد -->
-        <div id="p-gate" class="gate-screen">
-            <h1 style="color:var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">HACKER ACCESS</h1>
-            <input type="password" id="p-code" placeholder="ENTER CODE">
-            <button class="btn-3d" onclick="unlockGate('p')">PROCEED</button>
-        </div>
-
-        <!-- الـ ID -->
-        <div id="i-gate" class="gate-screen" style="display:none">
-            <h2 style="color:var(--neon-orange)">VALIDATE IDENTITY</h2>
-            <input type="text" id="i-val" placeholder="PLAYER ID">
-            <button class="btn-3d" onclick="unlockGate('i')">ACTIVATE</button>
-        </div>
-
-        <!-- واجهة اللعبة -->
-        <div style="background:#000; padding:12px; border-bottom:1px solid #333; font-size:11px; display:flex; justify-content:space-between; color:var(--neon-orange)">
-            <span>ROOT@THRONE_SERVER:~$</span>
-            <span id="usr-tag"></span>
-        </div>
-
-        <div id="grid" class="game-grid"></div>
-
-        <div class="game-footer">
-            <button class="btn-3d" style="padding:12px 25px; font-size:14px" onclick="location.reload()">KILL SESSION [ESC]</button>
-        </div>
+<div id="game-container">
+    <div class="controls">
+        <button onclick="resetGame()">NEW GAME</button>
     </div>
 
-    <script>
-        const MASTER_P = "102075", MASTER_ID = "13551996";
-        let lv = 0, bombs = [];
+    <div class="grid" id="grid">
+        <!-- Tiles will be generated here -->
+    </div>
 
-        // شات الأشباح الاحترافي
-        const logs = ["SCANNING..", "IP_FOUND", "BYPASS_V2", "SQL_INJECT", "ROOT_FOUND", "THRONE_OK", "ERR_404", "0x00FF1"];
-        function runGhost() {
-            const mon = document.getElementById('ghost-monitor');
-            const div = document.createElement('div');
-            div.innerText = logs[Math.floor(Math.random()*logs.length)] + "_" + Math.random().toString(36).slice(2,5);
-            mon.appendChild(div);
-            if(mon.childNodes.length > 20) mon.removeChild(mon.firstChild);
-            setTimeout(runGhost, 700);
+    <div id="terminal">
+        > INITIALIZING BYPASS...<br>
+        > WAITING FOR UPLINK...
+    </div>
+</div>
+
+<!-- Audio for hacker vibes -->
+<audio id="bg-music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const code = "1234"; // كود الدخول
+    const music = document.getElementById('bg-music');
+
+    function startGame() {
+        const input = document.getElementById('access-code').value;
+        if(input === code) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            generateGrid();
+            music.play();
+            updateTerminal("ACCESS GRANTED. WELCOME OPERATOR.");
+        } else {
+            alert("WRONG CODE!");
         }
+    }
 
-        function unlockGate(mode) {
-            if(mode === 'p') {
-                if(document.getElementById('p-code').value === MASTER_P) {
-                    document.getElementById('p-gate').style.display='none';
-                    document.getElementById('i-gate').style.display='flex';
-                }
-            } else {
-                if(document.getElementById('i-val').value === MASTER_ID) {
-                    document.getElementById('i-gate').style.display='none';
-                    document.getElementById('usr-tag').innerText = "ID:" + MASTER_ID;
-                    runGame(); runGhost();
-                }
-            }
+    function generateGrid() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 25; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.onclick = () => {
+                tile.style.background = 'linear-gradient(145deg, #00ff00, #004400)';
+                tile.style.boxShadow = '0 0 15px #00ff00';
+                updateTerminal("DATA PACKET " + Math.random().toString(16).slice(2,8) + " EXTRACTED.");
+            };
+            grid.appendChild(tile);
         }
+    }
 
-        function runGame() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = ''; lv = 0; bombs = [];
-            for(let i=0; i<10; i++) {
-                const row = document.createElement('div');
-                row.className = 'row' + (i === 0 ? ' active' : '');
-                row.id = `lv-${i}`;
+    function resetGame() {
+        generateGrid();
+        updateTerminal("SYSTEM REBOOTED. STARTING NEW SESSION.");
+    }
 
-                let c = (i < 4) ? 1 : (i < 7) ? 2 : (i < 9) ? 3 : 4;
-                let p = [];
-                while(p.length < c) {
-                    let r = Math.floor(Math.random()*5);
-                    if(!p.includes(r)) p.push(r);
-                }
-                bombs.push(p);
+    function updateTerminal(text) {
+        const term = document.getElementById('terminal');
+        term.innerHTML += `<br>> ${text}`;
+        term.scrollTop = term.scrollHeight;
+    }
+</script>
 
-                for(let j=0; j<5; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.onclick = () => tap(i, j);
-                    row.appendChild(cell);
-                }
-                grid.appendChild(row);
-            }
-        }
-
-        function tap(r, c) {
-            if(r !== lv) return;
-            const target = document.getElementById(`lv-${r}`).children[c];
-            if(bombs[r].includes(c)) {
-                target.classList.add('lose');
-            } else {
-                target.classList.add('win');
-                setTimeout(() => {
-                    if(lv < 9) {
-                        document.getElementById(`lv-${lv}`).classList.remove('active');
-                        lv++;
-                        document.getElementById(`lv-${lv}`).classList.add('active');
-                        document.getElementById('grid').scrollBy({top: -85, behavior: 'smooth'});
-                    } else {
-                        alert("KING OF THE THRONE! 👑");
-                        location.reload();
-                    }
-                }, 400);
-            }
-        }
-    </script>
 </body>
 </html>
