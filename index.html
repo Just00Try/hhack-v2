@@ -1,283 +1,121 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>THE THRONE - CYBER VIP EVO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>APPLE HACK VIP 🍎</title>
     <style>
-        :root { 
-            --cyber-purple: #bc13fe;
-            --matrix-green: #00ff66;
-            --neon-glow: 0 0 20px rgba(188, 19, 254, 0.6);
-            --cyber-red: #ff0055;
-            --dark-tile: linear-gradient(145deg, #150926, #05020a);
+        :root {
+            --bg-color: #0b0e14;
+            --accent-gold: #ffcc00;
+            --win-green: #2ecc71;
+            --bomb-red: #e74c3c;
         }
-        * { box-sizing: border-box; font-family: 'Consolas', 'Segoe UI', monospace; } 
-        body { margin: 0; background: #020105; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); color: white; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .overlay { position: fixed; inset: 0; background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: #161b22; padding: 25px; border-radius: 20px; border: 2px solid var(--accent-gold); text-align: center; width: 90%; max-width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #000; color: var(--accent-gold); text-align: center; }
         
-        /* شريط الحالة العلوي المستقبلي */
-        .status-bar { position: absolute; top: 0; width: 100%; background: rgba(188, 19, 254, 0.08); border-bottom: 2px solid var(--cyber-purple); padding: 6px 0; overflow: hidden; white-space: nowrap; z-index: 10; box-shadow: 0 0 10px rgba(188, 19, 254, 0.3); }
-        .status-text { display: inline-block; animation: scrollText 12s linear infinite; color: var(--matrix-green); font-size: 11px; font-weight: bold; letter-spacing: 1px; }
-        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .header { padding: 15px; background: #161b22; text-align: center; border-bottom: 2px solid var(--accent-gold); font-size: 1.2rem; }
+        #game-board { flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 6px; padding: 10px; align-items: center; }
         
-        /* الحاوية الرئيسية بتصميم هجومي */
-        .container { background: rgba(8, 4, 15, 0.96); border: 2px solid var(--cyber-purple); padding: 30px 22px; border-radius: 20px; text-align: center; width: 340px; box-shadow: var(--neon-glow); position: relative; backdrop-filter: blur(15px); }
-        .neon-line { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); width: 150px; height: 4px; background: var(--matrix-green); box-shadow: 0 0 15px var(--matrix-green); border-radius: 10px; }
-        .title { font-size: 24px; color: #fff; margin-bottom: 25px; font-weight: 900; text-shadow: 0 0 10px var(--cyber-purple); letter-spacing: 2px; }
+        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; opacity: 0.3; pointer-events: none; width: 100%; max-width: 300px; }
+        .row.active { opacity: 1; pointer-events: auto; }
+        .brick { height: 45px; background: #2a2f3a; border-radius: 8px; border: 1px solid #444; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.5rem; transition: 0.3s; }
         
-        /* أزرار 3D مطورة كلياً */
-        .btn-3d { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.15s; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .btn-purple { background: linear-gradient(145deg, #bc13fe, #7a06a9); color: #fff; box-shadow: 0 5px 0 #4f036e, 0 5px 15px rgba(188, 19, 254, 0.4); text-shadow: 0 1px 2px black; }
-        .btn-purple:active { transform: translateY(4px); box-shadow: 0 1px 0 #4f036e; }
-        
-        .btn-cyber-red { background: transparent; color: var(--cyber-red); border: 2px solid var(--cyber-red); box-shadow: 0 0 12px rgba(255, 0, 85, 0.3); font-weight: 900; }
-        .btn-cyber-red:hover { background: var(--cyber-red); color: #000; box-shadow: 0 0 20px var(--cyber-red); }
-        .btn-cyber-red:active { transform: scale(0.97); }
-        
-        input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--cyber-purple); background: #000; color: var(--matrix-green); text-align: center; font-size: 16px; outline: none; box-shadow: inset 0 0 8px rgba(188, 19, 254, 0.2); font-family: monospace; }
-        input:focus { border-color: var(--matrix-green); box-shadow: inset 0 0 8px rgba(0, 255, 102, 0.2), 0 0 10px rgba(0, 255, 102, 0.2); }
-        
-        /* منطقة اللعب الرقمية */
-        .scroll-area {
-            max-height: 290px; overflow-y: auto; padding: 8px;
-            display: flex; flex-direction: column-reverse; gap: 8px;
-            background: rgba(0, 0, 0, 0.8); border-radius: 12px; margin-top: 10px; border: 1px solid rgba(188, 19, 254, 0.3);
-        }
-        .scroll-area::-webkit-scrollbar { width: 4px; }
-        .scroll-area::-webkit-scrollbar-thumb { background: var(--cyber-purple); border-radius: 10px; }
-
-        .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; opacity: 0.15; pointer-events: none; transition: 0.3s; }
-        .row.active { opacity: 1; pointer-events: auto; transform: scale(1.01); }
-
-        /* بلاطات السايبر المتوهجة */
-        .tile {
-            height: 44px; background: var(--dark-tile); border-radius: 6px; border: 1px solid rgba(188, 19, 254, 0.4);
-            box-shadow: 0 3px 0 #0b0314, 0 4px 10px rgba(0,0,0,0.7);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem; cursor: pointer; position: relative; transition: 0.1s;
-        }
-        .tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #0b0314; }
-
-        /* تغيير ألوان الفوز والخسارة لتصبح تكنولوجية مبهرة */
-        .tile.win { background: #000 !important; box-shadow: inset 0 0 12px var(--matrix-green); border: 2px solid var(--matrix-green); }
-        .tile.win::after { content: '🟢'; filter: drop-shadow(0 0 5px var(--matrix-green)); }
-
-        .tile.lose { background: #000 !important; box-shadow: inset 0 0 12px var(--cyber-red); border: 2px solid var(--cyber-red); }
-        .tile.lose::after { content: '❌'; filter: drop-shadow(0 0 5px var(--cyber-red)); }
-
-        /* شاشة التحميل النيون */
-        .loader-box { background: #040208 !important; border: 2px solid var(--cyber-purple) !important; box-shadow: 0 0 25px rgba(188, 19, 254, 0.5) !important; }
-        .spin-circle { width: 50px; height: 50px; border: 4px solid #11081c; border-top: 4px solid var(--cyber-purple); border-bottom: 4px solid var(--matrix-green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .progress-bar { width: 100%; height: 4px; background: #11081c; border-radius: 2px; margin-top: 15px; position: relative; overflow: hidden; }
-        .progress-line { position: absolute; height: 100%; width: 50%; background: linear-gradient(90deg, var(--cyber-purple), var(--matrix-green)); animation: loadMove 1.5s infinite linear; }
-        @keyframes loadMove { from { left: -50%; } to { left: 100%; } }
-
-        .hidden { display: none !important; }
-        #music-ctrl { position: absolute; bottom: 15px; right: 15px; background: none; border: 1px solid var(--cyber-purple); color: var(--cyber-purple); border-radius: 50%; width: 38px; height: 38px; cursor: pointer; z-index: 20; font-size: 14px; box-shadow: 0 0 8px rgba(188, 19, 254, 0.3); }
-        
-        #ghost-chat { position: absolute; left: 15px; bottom: 15px; font-size: 9px; color: var(--matrix-green); font-family: monospace; pointer-events: none; opacity: 0.6; text-align: left; line-height: 1.3; }
+        .controls { padding: 15px; background: #161b22; border-top: 2px solid #333; display: flex; gap: 10px; }
+        .btn-3d { padding: 15px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; color: #000; flex: 1; }
     </style>
 </head>
 <body>
 
-    <audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" type="audio/mpeg"></audio>
-    <audio id="click-sound"><source src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" type="audio/mpeg"></audio>
+<div id="pass-screen" class="overlay"><div class="login-box"><h2>CORE ACCESS 🔐</h2><input type="text" id="pass-input" placeholder="كلمة المرور"><button class="btn-3d" style="background:var(--accent-gold)" onclick="checkPass()">دخول</button></div></div>
+<div id="id-screen" class="overlay" style="display:none"><div class="login-box"><h2>ID LOGIN 🆔</h2><input type="text" id="id-input" placeholder="أدخل الـ ID (10 أرقام)"><button class="btn-3d" style="background:var(--accent-gold)" onclick="checkID()">تنشيط</button></div></div>
 
-    <button id="music-ctrl" onclick="toggleMusic()">🔊</button>
-    <div id="ghost-chat"></div>
-
-    <div class="status-bar">
-        <div class="status-text">[CYBER_EXTRACTOR_V4] // PORT_OPEN // ROOT_ACCESS_GRANTED // DECRYPTING TARGET AREA...</div>
+<div id="main-game" style="display:none; flex-direction:column; height:100%">
+    <div class="header">المحاولات: <span id="att-count">3</span></div>
+    <div id="game-board"></div>
+    <div class="controls">
+        <button class="btn-3d" style="background:#7f8c8d; color:#fff" onclick="resetRow()">تراجع</button>
+        <button class="btn-3d" id="start-btn" style="background:var(--accent-gold)" onclick="startGame()">جولة جديدة</button>
     </div>
+</div>
 
-    <div id="screen-pass" class="container">
-        <div class="neon-line"></div>
-        <div class="title">CYBER LOGIN</div>
-        <input type="password" id="mainKey" placeholder="ENTER ACCESS KEY">
-        <button class="btn-3d btn-purple" onclick="login()">INITIALIZE BYPASS</button>
-    </div>
+<script>
+    const P1 = "807055";
+    let curRow = 0;
 
-    <div id="screen-choice" class="container hidden">
-        <div class="neon-line"></div>
-        <div class="title">INJECTION MODE</div>
-        <button class="btn-3d btn-purple" onclick="playClick(); showID()">STANDALONE TRIAL</button>
-        <button class="btn-3d btn-cyber-red" onclick="playClick(); vipAccess()">ULTIMATE VIP PRO</button>
-    </div>
+    function checkPass() { 
+        if (document.getElementById('pass-input').value.trim() === P1) { 
+            document.getElementById('pass-screen').style.display = 'none'; 
+            document.getElementById('id-screen').style.display = 'flex'; 
+        } else { 
+            alert("كلمة المرور غير صحيحة!"); 
+        } 
+    }
+    
+    function checkID() { 
+        const idVal = document.getElementById('id-input').value.trim();
+        // التحقق أن المخلات عبارة عن 10 أرقام فقط
+        if (/^\d{10}$/.test(idVal)) { 
+            document.getElementById('id-screen').style.display = 'none'; 
+            document.getElementById('main-game').style.display = 'flex'; 
+            resetAtts(); 
+        } else { 
+            alert("يرجى إدخال ID يتكون من 10 أرقام!"); 
+        } 
+    }
 
-    <div id="screen-id" class="container hidden">
-        <div class="neon-line"></div>
-        <div class="title">TARGET INJECT</div>
-        <input type="text" id="pID" placeholder="PLAYER ID">
-        <button class="btn-3d btn-purple" onclick="playClick(); checkID()">EXECUTE EXPLOIT</button>
-    </div>
+    function resetAtts() {
+        localStorage.setItem('app_v6', 3);
+        document.getElementById('att-count').innerText = 3;
+    }
 
-    <div id="screen-loading" class="container loader-box hidden">
-        <div class="spin-circle"></div>
-        <div id="load-text" style="font-family: monospace; font-size: 13px; color: #fff; font-weight: bold; letter-spacing: 1px;">سحب توكن الحماية...</div>
-        <div class="progress-bar"><div class="progress-line"></div></div>
-    </div>
-
-    <div id="screen-game" class="container hidden">
-        <div class="neon-line"></div>
-        <div class="title" id="game-title">CYBER RADAR</div>
+    function startGame() {
+        let atts = parseInt(localStorage.getItem('app_v6')) || 3;
+        if (atts <= 0) { alert("انتهت المحاولات! جاري التجديد..."); resetAtts(); return; }
         
-        <div style="font-size: 11px; color: var(--matrix-green); display: flex; justify-content: space-between; margin-bottom: 8px; padding: 0 5px; font-weight: bold;">
-            <span id="user_display">TARGET: --------</span>
-            <span>OVERRIDE: OK</span>
-        </div>
-
-        <div id="grid-container" class="scroll-area"></div>
-
-        <div style="margin-top: 15px;">
-            <button class="btn-3d btn-purple" onclick="playClick(); initGame()">RESET RADAR 🔄</button>
-        </div>
-    </div>
-
-    <script>
-        const allowedIDs = ["13551996", "1002075", "1677182779", "20040050", "1679159755", "1679287881", "1680177899", "1680245567", "1680318023"];
-        const music = document.getElementById('bg-music');
-        const clickSnd = document.getElementById('click-sound');
+        localStorage.setItem('app_v6', atts - 1);
+        document.getElementById('att-count').innerText = atts - 1;
         
-        let currentLevel = 0;
-        let bombMap = [];
-
-        function playClick() { 
-            try { clickSnd.currentTime = 0; clickSnd.play(); } catch(e) {}
-        }
-
-        function toggleMusic() {
-            if (music.paused) { music.play(); document.getElementById('music-ctrl').innerText = "🔊"; }
-            else { music.pause(); document.getElementById('music-ctrl').innerText = "🔈"; }
-        }
-
-        function hideAll() { document.querySelectorAll('.container').forEach(c => c.classList.add('hidden')); }
-
-        document.getElementById('mainKey').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') { login(); }
-        });
-
-        function login() {
-            playClick();
-            const enteredPass = document.getElementById('mainKey').value.trim();
-            
-            if (enteredPass === "15711") {
-                try { music.play(); } catch(e) {}
-                hideAll(); 
-                document.getElementById('screen-choice').classList.remove('hidden');
-                startGhost();
-            } else { 
-                alert("ACCESS VIOLATION: INVALID KEY"); 
-            }
-        }
-
-        function showID() { hideAll(); document.getElementById('screen-id').classList.remove('hidden'); }
+        const board = document.getElementById('game-board');
+        board.innerHTML = '';
+        curRow = 0;
         
-        function vipAccess() {
-            let p = prompt("ENTER VIP FIRMWARE KEY:");
-            if (p && p.trim() === "102545") {
-                hideAll(); 
-                document.getElementById('screen-game').classList.remove('hidden');
-                document.getElementById('game-title').innerText = "VIP MATRIX RADAR";
-                document.getElementById('user_display').innerText = "TARGET: VIP_USER";
-                initGame();
-            } else { alert("CRITICAL ERROR: ACCESS DENIED"); }
-        }
-
-        function checkID() {
-            const typedID = document.getElementById('pID').value.trim();
-            if (allowedIDs.includes(typedID)) {
-                hideAll(); 
-                const loadingScreen = document.getElementById('screen-loading');
-                const loadText = document.getElementById('load-text');
-                loadingScreen.classList.remove('hidden');
-                
-                setTimeout(() => { 
-                    loadText.innerText = "تخطي جدار الحماية الخارجي..."; 
-                    loadText.style.color = "var(--cyber-purple)";
-                }, 1200);
-                
-                setTimeout(() => { 
-                    loadText.innerText = "تم الحقن بنجاح! مزامنة البيانات..."; 
-                    loadText.style.color = "var(--matrix-green)";
-                }, 2500);
-
-                setTimeout(() => {
-                    loadingScreen.classList.add('hidden');
-                    document.getElementById('screen-game').classList.remove('hidden');
-                    document.getElementById('user_display').innerText = "ID: " + typedID;
-                    initGame();
-                }, 3800);
-
-            } else { alert("ERROR: PLAYER ID NOT FOUND IN MATRIX"); }
-        }
-
-        function initGame() {
-            const container = document.getElementById('grid-container');
-            container.innerHTML = '';
-            currentLevel = 0;
-            bombMap = [];
-
-            for (let i = 0; i < 10; i++) {
-                const row = document.createElement('div');
-                row.className = 'row' + (i === 0 ? ' active' : '');
-                row.id = `row-${i}`;
-
-                let bombCount = (i < 4) ? 1 : (i < 7) ? 2 : (i < 9) ? 3 : 4;
-                let bombs = [];
-                while (bombs.length < bombCount) {
-                    let r = Math.floor(Math.random() * 5);
-                    if (!bombs.includes(r)) bombs.push(r);
-                }
-                bombMap.push(bombs);
-
-                for (let j = 0; j < 5; j++) {
-                    const tile = document.createElement('div');
-                    tile.className = 'tile';
-                    tile.onclick = () => playMove(i, j);
-                    row.appendChild(tile);
-                }
-                container.appendChild(row);
-            }
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function playMove(r, c) {
-            if (r !== currentLevel) return;
-            const tile = document.getElementById(`row-${r}`).children[c];
-            playClick();
-
-            if (bombMap[r].includes(c)) {
-                tile.classList.add('lose');
-            } else {
-                tile.classList.add('win');
-                setTimeout(() => {
-                    if (currentLevel < 9) {
-                        document.getElementById(`row-${currentLevel}`).classList.remove('active');
-                        currentLevel++;
-                        document.getElementById(`row-${currentLevel}`).classList.add('active');
-                        document.getElementById('grid-container').scrollBy({top: -50, behavior: 'smooth'});
+        for (let i = 0; i < 10; i++) {
+            const rDiv = document.createElement('div');
+            rDiv.className = 'row' + (i === 0 ? ' active' : '');
+            rDiv.id = 'r' + i;
+            let bombs = [0,1,2,3,4].sort(() => Math.random() - 0.5).slice(0, i < 4 ? 1 : 2);
+            for (let j = 0; j < 5; j++) {
+                const b = document.createElement('div');
+                b.className = 'brick';
+                b.onclick = () => { 
+                    if (i !== curRow) return;
+                    if (bombs.includes(j)) {
+                        b.style.background = '#e74c3c'; 
+                        b.innerText = '💣'; 
                     } else {
-                        alert("⚡ SYSTEM CRACKED: THRONE OVERRIDDEN!");
+                        b.style.background = '#2ecc71'; 
+                        b.innerText = '🍎';
+                        document.getElementById('r'+curRow).classList.remove('active');
+                        curRow++;
+                        if(document.getElementById('r'+curRow)) document.getElementById('r'+curRow).classList.add('active');
                     }
-                }, 2500);
+                };
+                rDiv.appendChild(b);
             }
+            board.appendChild(rDiv);
         }
-
-        function startGhost() {
-            const chat = document.getElementById('ghost-chat');
-            const msgs = ["SYS_LOAD", "INJECT_0x9", "BYPASS_OK", "NET_SCAN", "TOKEN_VAL", "CYBER_CORE"];
-            setInterval(() => {
-                if (document.getElementById('screen-pass').classList.contains('hidden')) {
-                    const m = document.createElement('div');
-                    m.innerText = msgs[Math.floor(Math.random()*msgs.length)] + ">>" + Math.random().toString(36).slice(2,5).toUpperCase();
-                    chat.appendChild(m);
-                    if (chat.childNodes.length > 5) chat.removeChild(chat.firstChild);
-                }
-            }, 1000);
-        }
-    </script>
+    }
+    
+    function resetRow() { 
+        document.querySelectorAll('#r' + curRow + ' .brick').forEach(b => { 
+            b.style.background = '#2a2f3a'; 
+            b.innerText = ''; 
+        }); 
+    }
+</script>
 </body>
 </html>
