@@ -43,7 +43,7 @@
 </div>
 
 <script>
-    const P1 = "807055";
+    const P1 = "403010";
     let curRow = 0;
 
     function checkPass() { 
@@ -57,7 +57,6 @@
     
     function checkID() { 
         const idVal = document.getElementById('id-input').value.trim();
-        // التحقق أن المخلات عبارة عن 10 أرقام فقط
         if (/^\d{10}$/.test(idVal)) { 
             document.getElementById('id-screen').style.display = 'none'; 
             document.getElementById('main-game').style.display = 'flex'; 
