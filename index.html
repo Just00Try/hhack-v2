@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الأيدي، المحولات، ونظام الحماية</title>
+    <!-- استيراد Bootstrap للتصميم السريع -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Tahoma, sans-serif;
+            position: relative;
+            min-height: 100vh;
+        }
+        /* نقطة منورة مخفية في أقصى الشمال للتحكم في تفعيل الباسورد الثالث */
+        #stealthDot {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: #ff4757;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff4757;
+            cursor: pointer;
+            z-index: 9999;
+            opacity: 0.2; /* شفافة جداً لكي لا تثير الشك */
+            transition: opacity 0.3s;
+        }
+        #stealthDot.active {
+            opacity: 1; /* تصبح ساطعة عند تفعيل شرط الباسورد الثالث */
+        }
+        .card-custom {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- النقطة المنورة في أقصى الشمال (بالضغط عليها يتم تبديل تفعيل شرط الباسورد الثالث) -->
+    <div id="stealthDot" title="" onclick="toggleStealthMode()"></div>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">لوحة التحكم وإدارة الـ IDs والمحولات</h2>
+
+        <!-- قسم التحقق من كلمات المرور (الحماية) -->
+        <div class="card card-custom mb-4" id="authSection">
+            <h4>تسجيل الدخول / التحقق</h4>
+            <div class="mb-3">
+                <label for="passwordInput" class="form-label">أدخل كلمة المرور:</label>
+                <input type="password" id="passwordInput" class="form-control" placeholder="أدخل الباسورد هنا...">
+            </div>
+            <button class="btn btn-success" onclick="verifyPassword()">تحقق ودخول</button>
+            <div id="authMessage" class="mt-2 text-danger fw-bold"></div>
+        </div>
+
+        <!-- المحتوى الرئيسي للصفحة (يظهر بعد اجتياز الحماية الصحيحة) -->
+        <div id="mainContent" style="display: none;">
+            
+            <!-- جدول عرض الأيدي والمحولات -->
+            <div class="card card-custom">
+                <h4>قائمة الأيدي (IDs) والمحولات الحالية</h4>
+                <table class="table table-bordered text-center align-middle mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>الـ ID</th>
+                                <th>عدد المحولات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="idsTableBody">
+                            <!-- سيتم تعبئة البيانات هنا ديناميكياً -->
+                        </tbody>
+                    </table>
+                </table>
+            </div>
+
+            <!-- نموذج إضافة أو تعديل أو مسح الأيدي والمحولات -->
+            <div class="card card-custom">
+                <h4>إدارة وتعديل المحولات لـ ID معين</h4>
+                <div class="mb-3">
+                    <label for="selectId" class="form-label">اختر الـ ID:</label>
+                    <select id="selectId" class="form-control">
+                        <option value="">اختر ID...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="transformersCount" class="form-label">عدد المحولات:</label>
+                    <input type="number" id="transformersCount" class="form-control" min="0" placeholder="أدخل العدد الجديد">
+                </div>
+                <button class="btn btn-primary" onclick="updateTransformers()">حفظ / زيادة أو نقص المحولات</button>
+                <button class="btn btn-danger" onclick="deleteSelectedId()">مسح الـ ID المحدد بالكامل</button>
+            </div>
+
+            <!-- زر إضافة ID جديد كلياً -->
+            <div class="card card-custom">
+                <h4>إضافة ID جديد</h4>
+                <div class="mb-3">
+                    <input type="text" id="newIdInput" class="form-control" placeholder="أدخل اسم أو رقم الـ ID الجديد">
+                </div>
+                <div class="mb-3">
+                    <input type="number" id="newIdTransformers" class="form-control" placeholder="عدد المحولات الابتدائية" min="0">
+                </div>
+                <button class="btn btn-success" onclick="addNewId()">إضافة الـ ID للقائمة</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // مصفوفة افتراضية لتخزين البيانات محلياً (يمكن ربطها بـ Backend لاحقاً)
+        let idsData = [
+            { id_value: "ID_001", transformers_count: 5 },
+            { id_value: "ID_002", transformers_count: 3 }
+        ];
+
+        // حالة النقطة المنورة (الباسورد الثالث VpnDangeR)
+        let isStealthActive = false;
+
+        // دالة تبديل حالة النقطة المنورة عند الضغط عليها
+        function toggleStealthMode() {
+            isStealthActive = !isStealthActive;
+            const dot = document.getElementById('stealthDot');
+            if (isStealthActive) {
+                dot.classList.add('active');
+                alert("تم تفعيل وضع الحماية الصارم (النقطة منورة)");
+            } else {
+                dot.classList.remove('active');
+                alert("تم إلغاء تفعيل وضع الحماية الصارم");
+            }
+        }
+
+        // دالة التحقق من كلمات المرور
+        function verifyPassword() {
+            const pass = document.getElementById('passwordInput').value;
+            const msg = document.getElementById('authMessage');
+
+            // إذا كانت النقطة منورة، يجب أن يكون الباسورد المدخل هو الباسورد الثالث VpnDangeR حصرياً لكي تفتح الصفحة
+            if (isStealthActive) {
+                if (pass === "VpnDangeR") {
+                    msg.innerHTML = "";
+                    unlockPage();
+                    return;
+                } else {
+                    msg.innerHTML = "خطأ: النقطة مفعلة، يجب إدخال الباسورد الصحيح (VpnDangeR)!";
+                    return;
+                }
+            }
+
+            // لو النقطة مش منورة، الشغل الطبيعي للباسوردات العادية (203010 أو lDangeRl)
+            if (pass === "203010" || pass === "lDangeRl") {
+                msg.innerHTML = "";
+                unlockPage();
+            } else {
+                msg.innerHTML = "كلمة المرور غير صحيحة!";
+            }
+        }
+
+        // فتح الصفحة وإظهار المحتوى
+        function unlockPage() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            renderTableAndSelect();
+        }
+
+        // دالة رسم الجدول والقائمة المنسدلة من البيانات
+        function renderTableAndSelect() {
+            let tableBody = document.getElementById('idsTableBody');
+            let selectId = document.getElementById('selectId');
+            
+            tableBody.innerHTML = '';
+            selectId.innerHTML = '<option value="">اختر ID...</option>';
+
+            idsData.forEach(item => {
+                // تعبئة الجدول
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${item.id_value}</td>
+                        <td>${item.transformers_count}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="quickEdit('${item.id_value}')">تعديل سريع</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteIdDirect('${item.id_value}')">مسح</button>
+                        </td>
+                    </tr>
+                `;
+
+                // تعبئة قائمة الاختيارات
+                selectId.innerHTML += `<option value="${item.id_value}">${item.id_value} (المحولات: ${item.transformers_count})</option>`;
+            });
+        }
+
+        // زيادة أو نقصان أو تعديل المحولات للـ ID المختص
+        function updateTransformers() {
+            let selectedId = document.getElementById('selectId').value;
+            let countInput = document.getElementById('transformersCount').value;
+
+            if (!selectedId) {
+                alert("الرجاء اختيار ID من القائمة أولاً!");
+                return;
+            }
+            if (countInput === "") {
+                alert("الرجاء إدخال عدد المحولات الجديد!");
+                return;
+            }
+
+            let item = idsData.find(d => d.id_value === selectedId);
+            if (item) {
+                item.transformers_count = parseInt(countInput);
+                alert("تم تحديث عدد المحولات بنجاح!");
+                renderTableAndSelect();
+                document.getElementById('transformersCount').value = '';
+            }
+        }
+
+        // مسح الـ ID المختار من القائمة المنسدلة
+        function deleteSelectedId() {
+            let selectedId = document.getElementById('selectId').value;
+            if (!selectedId) {
+                alert("الرجاء اختيار ID لمسحه!");
+                return;
+            }
+            deleteIdDirect(selectedId);
+        }
+
+        // دالة الحذف المباشر لأي ID
+        function deleteIdDirect(idVal) {
+            if (confirm(`هل أنت متأكد من مسح الـ ID: ${idVal} بالكامل؟`)) {
+                idsData = idsData.filter(d => d.id_value !== idVal);
+                alert("تم الحذف بنجاح!");
+                renderTableAndSelect();
+            }
+        }
+
+        // إضافة ID جديد للقائمة
+        function addNewId() {
+            let newId = document.getElementById('newIdInput').value.trim();
+            let newCount = document.getElementById('newIdTransformers').value;
+
+            if (!newId) {
+                alert("الرجاء كتابة اسم الـ ID الجديد!");
+                return;
+            }
+
+            // التأكد من عدم تكرار الـ ID
+            if (idsData.some(d => d.id_value === newId)) {
+                alert("هذا الـ ID موجود مسبقاً!");
+                return;
+            }
+
+            idsData.push({
+                id_value: newId,
+                transformers_count: newCount !== "" ? parseInt(newCount) : 0
+            });
+
+            alert("تم إضافة الـ ID الجديد بنجاح!");
+            document.getElementById('newIdInput').value = '';
+            document.getElementById('newIdTransformers').value = '';
+            renderTableAndSelect();
+        }
+
+        // تعديل سريع من زر الجدول
+        function quickEdit(idVal) {
+            document.getElementById('selectId').value = idVal;
+            let item = idsData.find(d => d.id_value === idVal);
+            if (item) {
+                document.getElementById('transformersCount').value = item.transformers_count;
+            }
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
