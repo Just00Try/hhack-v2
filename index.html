@@ -67,9 +67,11 @@
         .header { padding: 15px; background: #161b22; text-align: center; border-bottom: 2px solid var(--accent-gold); font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; }
         
-        .row-wrapper { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 4px; opacity: 1; pointer-events: auto; }
+        .row-wrapper { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 4px; opacity: 0.3; pointer-events: none; transition: 0.3s; }
+        .row-wrapper.active { opacity: 1; pointer-events: auto; }
         .row-cells { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-        .row-reveal-btn { background: var(--accent-gold); color: #000; border: none; padding: 6px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; width: 100%; margin-top: 2px; display: none; }
+        .row-reveal-btn { background: var(--accent-gold); color: #000; border: none; padding: 6px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; width: 100%; margin-top: 2px; }
+        .row-reveal-btn:hover { background: #e6b800; }
 
         /* Apple */
         #game-board-apple { flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 8px; padding: 10px; align-items: center; }
@@ -79,11 +81,7 @@
 
         /* Gems & Mines */
         .gems-container { background: rgba(0, 10, 25, 0.98); border: 2px solid var(--accent-gold); padding: 20px 15px; border-radius: 25px; text-align: center; width: 340px; margin: auto; box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
-        .gems-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-        .cell-gem { height: 45px; background: radial-gradient(circle, #00d4ff, #005588); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid #1a3a5a; cursor: pointer; transition: 0.2s; }
-        .cell-gem:hover { transform: scale(1.05); }
-        .revealed-gem { background: #1b4332 !important; border-color: #52b788 !important; }
-        .revealed-gem-bomb { background: #4a1515 !important; border-color: #e63946 !important; }
+        .cell-gem { height: 45px; background: #0a1a2a; border: 1px solid #1a3a5a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
         /* Royal Feast */
         .royal-container { background: #2b0000; padding: 20px 15px; border-radius: 20px; border: 2px solid #ffd700; width: 100%; max-width: 350px; margin: auto; text-align: center; box-shadow: 0 8px 16px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow-y: auto; }
@@ -248,7 +246,7 @@
         </div>
     </div>
 
-    <!-- 2. لعبة Gems & Mines (تم تعديلها لتصبح بقنبلتين فقط بالضغط الحر) -->
+    <!-- 2. لعبة Gems & Mines -->
     <div id="game-gems" class="game-section" style="display:none; flex-direction:column; height:100%;">
         <div class="header">
             <button class="back-btn" onclick="returnToLobby()">⬅ القائمة</button>
@@ -257,10 +255,12 @@
         </div>
         <div style="flex:1; display:flex; justify-content:center; align-items:center; padding: 10px;">
             <div class="gems-container">
-                <div style="font-size: 16px; color: var(--accent-gold); font-weight:bold;">RADAR GEMS</div>
-                <div id="game-board-gems" class="royal-grid"></div>
-                <div style="font-size: 13px; color: #aaa;">اضغط على أي خانة لكشف محتواها بحرية! (قنبلتان فقط)</div>
-                <button class="btn-3d btn-blue" style="padding: 10px;" onclick="renderGemsGridSetup()">إعادة تعيين الشبكة 🔄</button>
+                <div style="font-size: 18px; color: var(--accent-gold); font-weight:bold;">RADAR GEMS</div>
+                <div id="game-board-gems" style="display:flex; flex-direction:column; gap:8px;"></div>
+                <div style="font-size: 13px; color: var(--blue);">
+                    💎: <span id="gems-count">0</span> | 💣: <span id="bombs-count">0</span>
+                </div>
+                <button class="btn-3d btn-blue" style="padding: 10px;" onclick="renderGemsGridSetup()">NEXT ROUND ⟳</button>
             </div>
         </div>
     </div>
@@ -322,9 +322,9 @@
 <script>
     // 🔑 إعدادات الباسوردات وتتبع الزيارات
     const WORKER_PASS = "203010";      
-    const ADMIN_PANEL_PASS = "lDangeRl"; 
+    const ADMIN_PANEL_PASS = "Mariam192004#"; 
     const EMERGENCY_PASS = "Stop999#";   
-    const STATS_PASS = "visits2026#"; 
+    const STATS_PASS = "visits2026#";
 
     window.addEventListener('DOMContentLoaded', () => {
         let visits = parseInt(localStorage.getItem('site_total_visits') || '0');
@@ -737,44 +737,83 @@
         }
     }
 
-    // 💎 لعبة Gems & Mines (تم ضبطها بقنبلتين فقط بالضغط الحر 5x5)
+    let curGemsRow = 0;
     let gemsBombPositions = [];
 
     function renderGemsGridSetup() {
         const board = document.getElementById('game-board-gems');
         board.innerHTML = "";
-        gemsBombPositions = [];
+        document.getElementById('gems-count').innerText = "0";
+        document.getElementById('bombs-count').innerText = "0";
+        curGemsRow = 0;
 
         let allIndices = [];
         for (let idx = 0; idx < 25; idx++) {
             allIndices.push(idx);
         }
-        // تم الضبط بدقة على قنبلتين فقط (2) من أصل 25 خانة
         gemsBombPositions = allIndices.sort(() => Math.random() - 0.5).slice(0, 2);
 
-        for (let i = 0; i < 25; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell-gem';
-            cell.innerText = '❓';
-            cell.onclick = () => revealGemsCell(cell, i);
-            board.appendChild(cell);
+        for (let i = 0; i < 5; i++) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'row-wrapper' + (i === 0 ? ' active' : '');
+            wrapper.id = 'gems-row-' + i;
+
+            const rDiv = document.createElement('div');
+            rDiv.className = 'row-cells';
+            for (let j = 0; j < 5; j++) {
+                const c = document.createElement('div');
+                c.className = 'cell-gem';
+                c.innerText = '🔒';
+                rDiv.appendChild(c);
+            }
+            wrapper.appendChild(rDiv);
+
+            const btn = document.createElement('button');
+            btn.className = 'row-reveal-btn';
+            btn.innerText = `🔍 كشف الصف (${i + 1})`;
+            btn.onclick = () => revealGemsRow(i);
+            wrapper.appendChild(btn);
+
+            board.appendChild(wrapper);
         }
     }
 
-    function revealGemsCell(cell, index) {
-        if (cell.classList.contains('revealed-gem') || cell.classList.contains('revealed-gem-bomb')) return;
+    function revealGemsRow(rowIdx) {
+        if (rowIdx !== curGemsRow) return;
 
         if (!gemsAttemptUsed) {
             if (!consumeAttempt()) return;
             gemsAttemptUsed = true;
         }
 
-        if (gemsBombPositions.includes(index)) {
-            cell.innerText = '💣';
-            cell.className = 'cell-gem revealed-gem-bomb';
+        const wrapper = document.getElementById('gems-row-' + rowIdx);
+        const cells = wrapper.querySelectorAll('.cell-gem');
+        wrapper.querySelector('.row-reveal-btn').style.display = 'none';
+
+        let foundGems = 0, foundBombs = 0;
+
+        for (let j = 0; j < 5; j++) {
+            let globalCellIndex = (rowIdx * 5) + j;
+            if (gemsBombPositions.includes(globalCellIndex)) {
+                cells[j].innerText = '💣';
+                cells[j].style.background = 'rgba(255,0,0,0.4)';
+                foundBombs++;
+            } else {
+                cells[j].innerText = '💎';
+                cells[j].style.background = 'rgba(0,212,255,0.3)';
+                foundGems++;
+            }
+        }
+
+        document.getElementById('gems-count').innerText = parseInt(document.getElementById('gems-count').innerText) + foundGems;
+        document.getElementById('bombs-count').innerText = parseInt(document.getElementById('bombs-count').innerText) + foundBombs;
+
+        curGemsRow++;
+        if (curGemsRow < 5) {
+            let nextWrapper = document.getElementById('gems-row-' + curGemsRow);
+            if (nextWrapper) nextWrapper.classList.add('active');
         } else {
-            cell.innerText = '💎';
-            cell.className = 'cell-gem revealed-gem';
+            alert("تم كشف شبكة الأحجار الكريمة بالكامل! 💎");
         }
     }
 
@@ -880,13 +919,14 @@
         const row = document.getElementById(`row-${step}`);
         const boxes = row.children;
 
+        // تعديل كشف مربعات الخطوة الحالية: الذهب يظهر مكانه الصحيح، وباقي المربعات تصبح ديناميت فوراً
         for (let j = 0; j < boxes.length; j++) {
             boxes[j].onclick = null;
             if (j === correctIndex) {
                 boxes[j].innerHTML = "🪙 ذهب";
                 boxes[j].className = "mine-box revealed-gold";
             } else {
-                boxes.innerHTML = "🧨 ديناميت";
+                boxes[j].innerHTML = "🧨 ديناميت";
                 boxes[j].className = "mine-box revealed-bomb";
             }
         }
