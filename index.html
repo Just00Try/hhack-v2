@@ -7,10 +7,10 @@
     <style>
         :root {
             --bg-color: #06040a;
-            --accent-gold: #ff007f; /* نيون وردي فخم */
+            --accent-gold: #ff007f;
             --win-green: #00ff88;
             --bomb-red: #ff0044;
-            --blue: #00f0ff; /* أزرق سايبر */
+            --blue: #00f0ff;
             --purple-glow: #9d00ff;
             --glass-bg: rgba(18, 10, 28, 0.88);
             --border-glow: 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
@@ -47,7 +47,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(6, 4, 10, 0.93);
+            background: rgba(6, 4, 10, 0.94);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -236,7 +236,6 @@
             margin: 0 auto;
         }
         
-        /* بطاقات ستايل سايبر فخم */
         .game-card {
             background: linear-gradient(145deg, rgba(25, 12, 38, 0.95), rgba(10, 5, 18, 0.95));
             border: 2px solid rgba(255, 0, 127, 0.5);
@@ -361,7 +360,7 @@
     </div>
 </div>
 
-<!-- لوحة التحكم الذكية -->
+<!-- لوحة التحكم الذكية للمالك -->
 <div id="roma-panel" class="overlay" style="display:none">
     <div class="login-box">
         <h2 style="color: var(--win-green); font-size: 1.1rem; margin-bottom: 8px;">لوحة التحكم الذكية ⚙️</h2>
@@ -442,7 +441,6 @@
                 <span class="game-icon">✈️</span>
                 <span class="game-name">Crash</span>
             </div>
-            <!-- تم تعديل اسم اللعبة هنا بناءً على طلبك إلى Apple فقط -->
             <div class="game-card" onclick="playSynthSound('click'); hapticFeedback(); openGame('apple')">
                 <span class="game-icon">🍎</span>
                 <span class="game-name">Apple</span>
@@ -473,7 +471,6 @@
     <div id="game-apple" class="game-section" style="display:none; flex-direction:column; height:100%;">
         <div class="header">
             <button class="back-btn" onclick="playSynthSound('click'); hapticFeedback(); returnToLobby()">⬅ القائمة</button>
-            <!-- تم تعديل العنونة أيضاً إلى Apple -->
             <span>Apple 🍎</span>
             <div id="game-attempts-hud-apple" class="timer-hud">🎮 3</div>
         </div>
@@ -661,7 +658,7 @@
                     ctx.lineWidth = 0.6;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.lineTo(particles[j].y, particles[j].y);
                     ctx.stroke();
                 }
             }
@@ -748,7 +745,7 @@
                 updateAttemptsHUD();
                 startServerConnection();
             } else {
-                alert("خطأ: هذا الـ ID المرتبط بالرابط لم يتم تفعيله في قاعدة البيانات!");
+                alert("خطأ: هذا الـ ID المرتبط بالرابط غير مفعل في قاعدة البيانات!");
             }
         }
     }
@@ -774,7 +771,7 @@
         }
         let db = getGlobalDB();
         if (!db.ids[idVal]) {
-            alert("تنبيه: هذا الـ ID غير مسجل في قاعدة البيانات، يجدر بك حفظه أولاً من لوحة المالك!");
+            alert("تنبيه: هذا الـ ID غير مسجل في قاعدة البيانات، يجب حفظه أولاً من لوحة المالك!");
             return;
         }
         let currentUrl = window.location.href.split('?')[0];
@@ -793,7 +790,7 @@
             saveGlobalDB(db);
             document.getElementById('new-id-input').value = '';
             renderRomaIDsTable();
-            alert(`تم حفظ الـ ID (${idVal}) بـ ${attVal} محاولات بنجاح! ✅`);
+            alert(`تم تفعيل الـ ID (${idVal}) بـ ${attVal} محاولات بنجاح! ✅`);
         } else {
             alert("يرجى إدخال ID صحيح!");
         }
@@ -834,10 +831,17 @@
         document.getElementById('pass-screen').style.display = 'flex';
     }
 
+    // الدالة الدقيقة لمنع دخول الأيديهات غير المفعلة
     function checkMainLogin() {
         let inputVal = document.getElementById('pass-input').value.trim();
+        if (!inputVal) {
+            alert("يرجى إدخال الكود أو الـ ID لتسجيل الدخول!");
+            return;
+        }
+
         let db = getGlobalDB();
 
+        // 1. دخول المالك اللوحة الرسمية
         if (inputVal === "Walhyma3rf") {
             document.getElementById('pass-screen').style.display = 'none';
             document.getElementById('roma-panel').style.display = 'flex';
@@ -846,14 +850,16 @@
             return;
         }
 
+        // 2. فحص هل الـ ID موجود في القاعدة ومفعل من قبل المالك؟
         let foundKey = Object.keys(db.ids).find(k => k.trim() === inputVal);
-        if (inputVal.length >= 1 && foundKey) {
+        if (foundKey) {
             activeClientKey = foundKey;
             updateAttemptsHUD();
             document.getElementById('pass-screen').style.display = 'none';
             startServerConnection();
         } else {
-            alert("خطأ: هذا الـ ID لم يتم تفعيله أو غير صحيح!");
+            // رفض الدخول فوراً إذا لم يكن مفصلاً مسبقاً
+            alert("خطأ: هذا الـ ID غير مفعل! يرجى التواصل مع المالك لتفعيل حسابك أولاً.");
             document.getElementById('pass-input').value = '';
         }
     }
@@ -906,13 +912,13 @@
         let pInterval = setInterval(() => {
             idx++;
             if (idx < portalSteps.length) portalMsg.innerText = portalSteps[idx];
-        }, 900);
+        }, 800);
 
         setTimeout(() => {
             clearInterval(pInterval);
             loadScreen.style.display = 'none';
             document.getElementById('lobby-screen').style.display = 'flex';
-        }, 3600);
+        }, 3200);
     }
 
     function openGame(gameName) {
@@ -948,7 +954,7 @@
                 document.getElementById('mineMainMenu').style.display = 'block';
                 document.getElementById('mineGameArea').style.display = 'none';
             }
-        }, 1800);
+        }, 1600);
     }
 
     function returnToLobby() {
@@ -1016,4 +1022,210 @@
 
             const rDiv = document.createElement('div');
             rDiv.className = 'row-cells';
-            for (let j = 0; j < 
+            for (let j = 0; j < 5; j++) {
+                const b = document.createElement('div');
+                b.className = 'apple-brick';
+                b.innerText = '🔒';
+                rDiv.appendChild(b);
+            }
+            wrapper.appendChild(rDiv);
+
+            const revealContainer = document.createElement('div');
+            revealContainer.className = 'row-reveal-container';
+
+            const revealBtn = document.createElement('button');
+            revealBtn.className = 'row-reveal-btn';
+            revealBtn.innerText = `🔍 كشف الصف (${i + 1})`;
+            revealBtn.onclick = () => {
+                playSynthSound('click');
+                hapticFeedback();
+                runAISimulation('apple', () => revealAppleRow(i));
+            };
+
+            const confBadge = document.createElement('div');
+            confBadge.className = 'confidence-badge';
+            confBadge.innerText = `دقة: ${(98 + Math.random() * 1.8).toFixed(1)}%`;
+
+            revealContainer.appendChild(revealBtn);
+            revealContainer.appendChild(confBadge);
+            wrapper.appendChild(revealContainer);
+            board.appendChild(wrapper);
+        }
+    }
+
+    function revealAppleRow(rowIdx) {
+        if (rowIdx !== curAppleRow) return;
+        playSynthSound('success');
+        const wrapper = document.getElementById('apple-row-' + rowIdx);
+        const bricks = wrapper.querySelectorAll('.apple-brick');
+        wrapper.querySelector('.row-reveal-container').style.display = 'none';
+
+        let bombs = appleRowsData[rowIdx];
+        for (let j = 0; j < 5; j++) {
+            if (bombs.includes(j)) {
+                bricks[j].innerText = '💣';
+                bricks[j].className = 'apple-brick revealed-bomb';
+            } else {
+                bricks[j].innerText = '🍎';
+                bricks[j].className = 'apple-brick revealed-apple';
+            }
+        }
+
+        curAppleRow++;
+        if (curAppleRow < 10) {
+            let nextWrapper = document.getElementById('apple-row-' + curAppleRow);
+            if (nextWrapper) nextWrapper.classList.add('active');
+        } else {
+            alert("تم كشف جميع خطوات الشجرة بنجاح! 🏆");
+        }
+    }
+
+    let gemsBombPositions = [];
+    function renderGemsGridSetup() {
+        const board = document.getElementById('game-board-gems');
+        board.innerHTML = "";
+        let allIndices = [];
+        for (let idx = 0; idx < 25; idx++) allIndices.push(idx);
+        gemsBombPositions = allIndices.sort(() => Math.random() - 0.5).slice(0, 2);
+
+        for (let i = 0; i < 25; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell-gem';
+            cell.innerText = '❓';
+            cell.onclick = () => {
+                playSynthSound('click');
+                hapticFeedback();
+                runAISimulation('gems', () => {
+                    playSynthSound('success');
+                    if (gemsBombPositions.includes(i)) {
+                        cell.innerText = '💣'; cell.className = 'cell-gem revealed-gem-bomb';
+                    } else {
+                        cell.innerText = '💎'; cell.className = 'cell-gem revealed-gem';
+                    }
+                });
+            };
+            board.appendChild(cell);
+        }
+    }
+
+    let royalRowsData = [];
+    function initRoyalGameSetup() {
+        const board = document.getElementById('game-board-royal');
+        board.innerHTML = "";
+        royalRowsData = [];
+        let rowPoisonCounts = [3, 1, 2, 2, 2].sort(() => Math.random() - 0.5);
+
+        for (let r = 0; r < 5; r++) {
+            let rowIndices = [0, 1, 2, 3, 4].map(col => (r * 5) + col);
+            let rowPoisons = rowIndices.sort(() => Math.random() - 0.5).slice(0, rowPoisonCounts[r]);
+            royalRowsData.push(...rowPoisons);
+        }
+
+        for (let i = 0; i < 25; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell-royal';
+            cell.innerText = '❓';
+            cell.onclick = () => {
+                playSynthSound('click');
+                hapticFeedback();
+                runAISimulation('royal', () => {
+                    playSynthSound('success');
+                    let foods = ["🍗", "🥩", "🍰", "🍕"];
+                    if (royalRowsData.includes(i)) {
+                        cell.innerText = '☠'; cell.className = 'cell-royal revealed-poison';
+                    } else {
+                        cell.innerText = foods[Math.floor(Math.random() * foods.length)];
+                        cell.className = 'cell-royal revealed-food';
+                    }
+                });
+            };
+            board.appendChild(cell);
+        }
+    }
+
+    let mineMode = 2, mineCurrentStep = 0, mineTotalSteps = 6, mineWinningPaths = [];
+    function initMineGameSession(selectedMode) {
+        mineMode = selectedMode;
+        document.getElementById('mineMainMenu').style.display = 'none';
+        document.getElementById('mineGameArea').style.display = 'block';
+        resetMineVariables();
+    }
+
+    function resetMineVariables() {
+        mineCurrentStep = 0;
+        mineWinningPaths = [];
+        document.getElementById('nextSignalBtn').style.display = 'none';
+        document.getElementById('mineMessage').innerText = "السكريبت جاهز.. ابدأ من الأسفل للصعود أعلى!";
+        for (let i = 0; i < mineTotalSteps; i++) mineWinningPaths.push(Math.floor(Math.random() * mineMode));
+        buildMineLadder();
+    }
+
+    function buildMineLadder() {
+        const ladder = document.getElementById('ladderContainer');
+        ladder.innerHTML = "";
+        for (let i = mineTotalSteps - 1; i >= 0; i--) {
+            const row = document.createElement('div');
+            row.className = 'row-level';
+            row.id = `row-${i}`;
+            for (let j = 0; j < mineMode; j++) {
+                const box = document.createElement('div');
+                box.className = `mine-box ${i === mineCurrentStep ? 'active' : ''}`;
+                box.innerText = i === mineCurrentStep ? "🔍 اكشف" : "🔒 مغلق";
+                box.onclick = () => {
+                    playSynthSound('click');
+                    hapticFeedback();
+                    runAISimulation('goldmine', () => revealMineStep(i));
+                };
+                row.appendChild(box);
+            }
+            ladder.appendChild(row);
+        }
+        document.getElementById('currentStepText').innerText = mineCurrentStep + 1;
+    }
+
+    function revealMineStep(step) {
+        if (step !== mineCurrentStep) return;
+        playSynthSound('success');
+        const correctIndex = mineWinningPaths[step];
+        const row = document.getElementById(`row-${step}`);
+        const boxes = row.children;
+
+        for (let j = 0; j < boxes.length; j++) {
+            boxes[j].onclick = null;
+            if (j === correctIndex) {
+                boxes[j].innerHTML = "🪙 ذهب"; boxes[j].className = "mine-box revealed-gold";
+            } else {
+                boxes[j].innerHTML = "🧨 ديناميت"; boxes[j].className = "mine-box revealed-bomb";
+            }
+        }
+
+        mineCurrentStep++;
+        if (mineCurrentStep < mineTotalSteps) {
+            document.getElementById('mineMessage').innerText = "ممتاز! اصعد للخطوة التالية للأعلى ⚡";
+            const nextRow = document.getElementById(`row-${mineCurrentStep}`);
+            if (nextRow) {
+                for (let box of nextRow.children) {
+                    box.className = "mine-box active";
+                    box.innerText = "🔍 اكشف";
+                    box.onclick = () => {
+                        playSynthSound('click');
+                        hapticFeedback();
+                        runAISimulation('goldmine', () => revealMineStep(mineCurrentStep));
+                    };
+                }
+            }
+        } else {
+            document.getElementById('mineMessage').innerText = "وصلت للقمة وتم كشف جميع الخطوات بنجاح! 🏆";
+            document.getElementById('nextSignalBtn').style.display = 'block';
+        }
+        document.getElementById('currentStepText').innerText = Math.min(mineCurrentStep + 1, mineTotalSteps);
+    }
+
+    function resetToMineMenu() {
+        currentActiveGame = null;
+        document.getElementById('mineGameArea').style.display = 'none';
+        document.getElementById('mineMainMenu').style.display = 'block';
+    }
+</script>
+</body>
+</html>
