@@ -144,7 +144,6 @@
         }
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* خلفية شبه شفافة معتمة للعبة لمنع أي تداخل بصري */
         .game-screen { 
             width: 100%; height: 100%; 
             display: flex; flex-direction: column; 
@@ -194,10 +193,11 @@
         .mine-mode-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 15px; }
         .mine-mode-btn { background: rgba(15,23,42,0.9); color: var(--neon-blue); border: 2px solid var(--neon-blue); padding: 10px 18px; font-size: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; flex: 1; }
         .mine-header-info { display: flex; justify-content: space-between; background: rgba(15,23,42,0.9); color: var(--neon-blue); padding: 10px 14px; border-radius: 10px; font-weight: bold; margin-bottom: 12px; font-size: 13px; border: 1px solid var(--neon-blue); }
-        .ladder { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .row-level { display: flex; gap: 6px; justify-content: center; }
+        .ladder { display: flex; flex-direction: column-reverse; gap: 6px; margin-bottom: 12px; }
+        .row-level { display: flex; gap: 6px; justify-content: center; opacity: 0.4; pointer-events: none; transition: 0.3s; }
+        .row-level.active { opacity: 1; pointer-events: auto; }
         .mine-box { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; height: 42px; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #aaa; font-weight: bold; cursor: pointer; }
-        .mine-box.active { border-color: var(--neon-blue); color: #fff; background: rgba(0, 240, 255, 0.15); }
+        .mine-box.active-box { border-color: var(--neon-blue); color: #fff; background: rgba(0, 240, 255, 0.15); }
 
         .admin-panel {
             width: 90%; max-width: 450px; background: rgba(10, 15, 30, 0.95);
@@ -283,7 +283,7 @@
 </div>
 
 <script>
-    // --- 1. Three.js Background (تثبيت الشبكة أسفل الشاشة ومنع تقاطعها مع اللعب) ---
+    // --- 1. Three.js Background ---
     const canvas = document.getElementById('webgl-bg');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -291,16 +291,13 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    // إضافة الضباب النيون للتلاشي الأنيق بدلاً من التداخل البصري
     scene.fog = new THREE.FogExp2(0x030712, 0.035);
 
-    // شبكة ليزرية هادئة ومنخفضة أسفل الشاشة
     const gridHelper = new THREE.GridHelper(80, 30, 0x00f0ff, 0x0033aa);
-    gridHelper.position.y = -12; // خفض الشبكة تماماً تحت مستوى اللعب
+    gridHelper.position.y = -12;
     gridHelper.position.z = -10;
     scene.add(gridHelper);
 
-    // جسيمات ضوئية خفيفة في الخلفية
     const particlesCount = 350;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particlesCount * 3);
@@ -342,12 +339,34 @@
         if(val === "Walhyma3rf") { renderAdminTable(); showScreen('screen-admin'); return; }
         let db = getDB();
         if(db.ids[val]) {
+            if(db.ids[val].attempts <= 0) {
+                return alert("عذراً! انتهت جميع المحاولات الخاصة بهذا الـ ID. يرجى التواصل مع المالك.");
+            }
             activeClientId = val;
             updateAttemptsHUD();
             triggerRadarLoading(() => { showScreen('screen-lobby'); });
         } else {
             alert("خطأ: هذا الـ ID غير مفعل! يرجى التواصل مع المالك للتفعيل.");
         }
+    }
+
+    // دالة خصم محاولة واحدة عند تشغيل أي لعبة
+    function deductAttempt() {
+        if (!activeClientId) return true;
+        let db = getDB();
+        if (db.ids[activeClientId]) {
+            if (db.ids[activeClientId].attempts > 0) {
+                db.ids[activeClientId].attempts -= 1;
+                saveDB(db);
+                updateAttemptsHUD();
+                return true;
+            } else {
+                alert("استنفدت عدد المحاولات المتاحة لهذا الـ ID (0 محاولة)! يرجى التواصل مع المالك.");
+                showScreen('screen-lobby');
+                return false;
+            }
+        }
+        return true;
     }
 
     function addClientId() {
@@ -359,7 +378,7 @@
         saveDB(db);
         document.getElementById('new-client-id').value = "";
         renderAdminTable();
-        alert(`تم تفعيل الـ ID (${idVal}) بنجاح!`);
+        alert(`تم تفعيل الـ ID (${idVal}) بـ ${attemptsVal} محاولات بنجاح!`);
     }
 
     function renderAdminTable() {
@@ -425,6 +444,10 @@
     function launchSelectedGame() {
         let currentGame = gamesList[currentCardIndex];
         if(currentGame.id === 'crash') return alert("هذه اللعبة غير متوفرة حالياً!");
+        
+        // الخصم عند بدء تشغيل أي لعبة
+        if (!deductAttempt()) return;
+
         triggerRadarLoading(() => {
             document.getElementById('active-game-title').innerText = currentGame.title;
             renderGameBoard(currentGame.id);
@@ -448,12 +471,13 @@
         document.getElementById(screenId).style.display = 'flex';
     }
 
-    // --- 4. Game Boards ---
+    // --- 4. Game Boards (مع الضبط التام لكل الألعاب) ---
     function renderGameBoard(gameId) {
         const area = document.getElementById('game-board-area');
         area.innerHTML = "";
 
         if(gameId === 'gems') {
+            // Gems: قنبلتان و 23 جوهرة
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
             let allIndices = [];
@@ -478,6 +502,7 @@
             area.appendChild(grid);
         } 
         else if(gameId === 'apple') {
+            // Apple
             const board = document.createElement('div');
             board.className = 'apple-board';
             let activeAppleRow = 0;
@@ -487,7 +512,7 @@
                 let bombCount = 1;
                 if (r >= 4 && r <= 6) { bombCount = 2; }
                 else if (r >= 7 && r <= 8) { bombCount = 3; }
-                else if (r === 9) { bombCount = 4; } // 4 قنابل وتفاحة واحدة فقط في القمة
+                else if (r === 9) { bombCount = 4; }
 
                 let bombs = [];
                 while(bombs.length < bombCount) {
@@ -540,26 +565,41 @@
             area.appendChild(board);
         } 
         else if(gameId === 'royal') {
+            // Royal Feast: ضبط 15 طعام مقابل 10 سم بدقة تامة
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
+            
+            let allPos = [];
+            for(let i=0; i<25; i++) allPos.push(i);
+            allPos.sort(() => Math.random() - 0.5);
+            
+            let poisonIndices = allPos.slice(0, 10); // 10 أماكن للسم ☠️
+            let foodTypes = ['🍗', '🥩', '🍰', '🍕'];
+
             for(let i=0; i<25; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.innerText = '❓';
                 cell.onclick = () => {
-                    let items = ['🍗', '🥩', '🍰', '☠'];
-                    cell.innerText = items[Math.floor(Math.random() * items.length)];
+                    if(poisonIndices.includes(i)) {
+                        cell.innerText = '☠️';
+                        cell.style.borderColor = 'var(--neon-pink)';
+                    } else {
+                        cell.innerText = foodTypes[Math.floor(Math.random() * foodTypes.length)];
+                        cell.style.borderColor = 'var(--neon-green)';
+                    }
                 };
                 grid.appendChild(cell);
             }
             area.appendChild(grid);
         }
         else if(gameId === 'goldmine') {
+            // Wild West Gold: إصلاح السلالم للعمل من الصف الأول (الأسفل) بالتتابع
             const container = document.createElement('div');
             container.className = 'mine-container';
             container.innerHTML = `
                 <h1 style="color: var(--neon-blue); margin-bottom: 12px; font-size: 16px;">🛡️ Wild West Gold 🔓</h1>
-                <p style="color: #aaa; margin-bottom: 12px; font-size: 12px;">اختر نظام اللعب:</p>
+                <p style="color: #aaa; margin-bottom: 12px; font-size: 12px;">اختر نظام اللعب للبدء:</p>
                 <div class="mine-mode-buttons">
                     <button class="mine-mode-btn" onclick="initMineSession(2)">وضع 2x</button>
                     <button class="mine-mode-btn" onclick="initMineSession(3)">وضع 3x</button>
@@ -577,6 +617,7 @@
         }
     }
 
+    // دوال Wild West Gold المصححة 100%
     let mineMode = 2, mineStep = 0, winningPaths = [];
     function initMineSession(mode) {
         mineMode = mode;
@@ -592,32 +633,48 @@
     function buildLadder() {
         const ladder = document.getElementById('mine-ladder');
         ladder.innerHTML = "";
-        for(let i=5; i>=0; i--) {
+        for(let i=0; i<6; i++) {
             const row = document.createElement('div');
-            row.className = 'row-level';
+            row.className = `row-level ${i === mineStep ? 'active' : ''}`;
+            row.id = `mine-row-${i}`;
+
             for(let j=0; j<mineMode; j++) {
                 const box = document.createElement('div');
-                box.className = `mine-box ${i === mineStep ? 'active' : ''}`;
+                box.className = `mine-box ${i === mineStep ? 'active-box' : ''}`;
                 box.innerText = i === mineStep ? "🔍 اكشف" : "🔒 مغلق";
+                
                 box.onclick = () => {
                     if(i !== mineStep) return;
                     let correct = winningPaths[i];
+                    let boxes = row.querySelectorAll('.mine-box');
+                    
                     for(let k=0; k<mineMode; k++) {
-                        row.children[k].onclick = null;
+                        boxes[k].onclick = null;
                         if(k === correct) {
-                            row.children[k].innerHTML = "🪙 ذهب";
-                            row.children[k].style.background = "rgba(0,255,102,0.2)";
+                            boxes[k].innerHTML = "🪙 ذهب";
+                            boxes[k].style.background = "rgba(0,255,102,0.2)";
+                            boxes[k].style.borderColor = "var(--neon-green)";
                         } else {
-                            row.children[k].innerHTML = "🧨 ديناميت";
-                            row.children[k].style.background = "rgba(255,0,85,0.2)";
+                            boxes[k].innerHTML = "🧨 ديناميت";
+                            boxes[k].style.background = "rgba(255,0,85,0.2)";
+                            boxes[k].style.borderColor = "var(--neon-pink)";
                         }
                     }
+
                     mineStep++;
                     if(mineStep < 6) {
                         document.getElementById('mine-step').innerText = mineStep + 1;
-                        buildLadder();
+                        let nextRow = document.getElementById(`mine-row-${mineStep}`);
+                        if(nextRow) {
+                            nextRow.classList.add('active');
+                            let nextBoxes = nextRow.querySelectorAll('.mine-box');
+                            nextBoxes.forEach(nb => {
+                                nb.classList.add('active-box');
+                                nb.innerText = "🔍 اكشف";
+                            });
+                        }
                     } else {
-                        alert("وصلت للقمة بنجاح! 🏆");
+                        alert("تهانينا! وصلت للقمة بنجاح 🏆");
                     }
                 };
                 row.appendChild(box);
