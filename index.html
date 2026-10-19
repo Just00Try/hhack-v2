@@ -144,9 +144,16 @@
         }
         @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .game-screen { width: 100%; height: 100%; display: flex; flex-direction: column; z-index: 15; background: rgba(3, 7, 18, 0.9); }
+        /* خلفية شبه شفافة معتمة للعبة لمنع أي تداخل بصري */
+        .game-screen { 
+            width: 100%; height: 100%; 
+            display: flex; flex-direction: column; 
+            z-index: 15; 
+            background: rgba(3, 7, 18, 0.94); 
+            backdrop-filter: blur(12px);
+        }
         .game-header {
-            padding: 15px 20px; background: rgba(10, 15, 30, 0.9);
+            padding: 15px 20px; background: rgba(10, 15, 30, 0.95);
             border-bottom: 2px solid var(--neon-blue); display: flex; justify-content: space-between; align-items: center;
             box-shadow: var(--glow); margin-top: 30px;
         }
@@ -156,11 +163,11 @@
         .grid-5x5 {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
             width: 100%; max-width: 360px; margin: auto; padding: 15px;
-            background: rgba(10, 15, 30, 0.8); border: 2px solid var(--neon-blue);
+            background: rgba(10, 15, 30, 0.95); border: 2px solid var(--neon-blue);
             border-radius: 20px; box-shadow: var(--glow);
         }
         .grid-cell {
-            height: 52px; background: rgba(15, 23, 42, 0.9);
+            height: 52px; background: rgba(15, 23, 42, 0.95);
             border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 12px;
             display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer;
             transition: all 0.3s;
@@ -171,7 +178,7 @@
         .apple-row { display: flex; gap: 8px; align-items: center; width: 100%; max-width: 340px; opacity: 0.4; pointer-events: none; transition: 0.4s; }
         .apple-row.active { opacity: 1; pointer-events: auto; }
         .apple-cell {
-            flex: 1; height: 40px; background: rgba(15, 23, 42, 0.9);
+            flex: 1; height: 40px; background: rgba(15, 23, 42, 0.95);
             border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 8px;
             display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
         }
@@ -183,7 +190,6 @@
             color: #fff; font-weight: bold; font-size: 0.8rem; cursor: pointer;
         }
 
-        /* Wild West Gold Styles */
         .mine-container { background: rgba(10, 15, 30, 0.95); padding: 22px; border-radius: 20px; text-align: center; max-width: 380px; width: 90%; border: 2px solid var(--neon-blue); margin: auto; box-shadow: var(--glow); }
         .mine-mode-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 15px; }
         .mine-mode-btn { background: rgba(15,23,42,0.9); color: var(--neon-blue); border: 2px solid var(--neon-blue); padding: 10px 18px; font-size: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; flex: 1; }
@@ -277,33 +283,39 @@
 </div>
 
 <script>
-    // --- 1. Three.js Background (شبكة ليزرية زرقاء ونقاط مضيئة نظيفة) ---
+    // --- 1. Three.js Background (تثبيت الشبكة أسفل الشاشة ومنع تقاطعها مع اللعب) ---
     const canvas = document.getElementById('webgl-bg');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    const gridHelper = new THREE.GridHelper(60, 40, 0x00f0ff, 0x0055ff);
-    gridHelper.position.y = -5;
+    // إضافة الضباب النيون للتلاشي الأنيق بدلاً من التداخل البصري
+    scene.fog = new THREE.FogExp2(0x030712, 0.035);
+
+    // شبكة ليزرية هادئة ومنخفضة أسفل الشاشة
+    const gridHelper = new THREE.GridHelper(80, 30, 0x00f0ff, 0x0033aa);
+    gridHelper.position.y = -12; // خفض الشبكة تماماً تحت مستوى اللعب
+    gridHelper.position.z = -10;
     scene.add(gridHelper);
 
-    const particlesCount = 600;
+    // جسيمات ضوئية خفيفة في الخلفية
+    const particlesCount = 350;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particlesCount * 3);
-    for(let i=0; i<particlesCount*3; i++) { positions[i] = (Math.random() - 0.5) * 50; }
+    for(let i=0; i<particlesCount*3; i++) { positions[i] = (Math.random() - 0.5) * 40; }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = new THREE.PointsMaterial({ size: 0.15, color: 0x00f0ff, transparent: true, opacity: 0.85 });
+    const material = new THREE.PointsMaterial({ size: 0.12, color: 0x00f0ff, transparent: true, opacity: 0.5 });
     const particlesMesh = new THREE.Points(geometry, material);
     scene.add(particlesMesh);
-    camera.position.z = 15;
+    camera.position.z = 18;
 
     function animate() {
         requestAnimationFrame(animate);
-        gridHelper.position.z += 0.04;
-        if (gridHelper.position.z > 2) gridHelper.position.z = 0;
-        particlesMesh.rotation.y += 0.0008;
+        gridHelper.position.z += 0.03;
+        if (gridHelper.position.z > 2) gridHelper.position.z = -10;
+        particlesMesh.rotation.y += 0.0005;
         renderer.render(scene, camera);
     }
     animate();
@@ -436,13 +448,12 @@
         document.getElementById(screenId).style.display = 'flex';
     }
 
-    // --- 4. Game Boards (مع ضبط لعبة الجواهر قنبلتين فقط، وتصحيح Wild West Gold) ---
+    // --- 4. Game Boards ---
     function renderGameBoard(gameId) {
         const area = document.getElementById('game-board-area');
         area.innerHTML = "";
 
         if(gameId === 'gems') {
-            // لعبة الجواهر: 25 خانة وقنبلتين فقط بدقة
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
             let allIndices = [];
@@ -476,7 +487,7 @@
                 let bombCount = 1;
                 if (r >= 4 && r <= 6) { bombCount = 2; }
                 else if (r >= 7 && r <= 8) { bombCount = 3; }
-                else if (r === 9) { bombCount = 1; }
+                else if (r === 9) { bombCount = 4; } // 4 قنابل وتفاحة واحدة فقط في القمة
 
                 let bombs = [];
                 while(bombs.length < bombCount) {
@@ -544,7 +555,6 @@
             area.appendChild(grid);
         }
         else if(gameId === 'goldmine') {
-            // إصلاح لعبة Wild West Gold التشغيلية
             const container = document.createElement('div');
             container.className = 'mine-container';
             container.innerHTML = `
@@ -567,7 +577,6 @@
         }
     }
 
-    // دوال تشغيل لعبة Wild West Gold
     let mineMode = 2, mineStep = 0, winningPaths = [];
     function initMineSession(mode) {
         mineMode = mode;
