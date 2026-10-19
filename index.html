@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MULTI-GAMES CYBER VIP 🎮</title>
-    <!-- مكتبة ثلاثية الأبعاد ثلاثية الأبعاد للخلفية -->
+    <!-- مكتبة ثلاثية الأبعاد للخلفية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- مكتبة المؤثرات الصوتية والسينمائية -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
     <style>
         :root {
@@ -32,18 +30,13 @@
             color: #fff;
         }
 
-        /* خلفية Canvas ثلاثية الأبعاد */
         #webgl-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
             pointer-events: none;
         }
 
-        /* الطبقات العامة */
         .app-overlay {
             position: absolute;
             inset: 0;
@@ -54,10 +47,9 @@
             align-items: center;
             background: rgba(3, 7, 18, 0.6);
             backdrop-filter: blur(8px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s ease;
         }
 
-        /* الشريط العكسي النيون المتنقل */
         .cyber-ticker {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -82,7 +74,6 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* بطاقة تسجيل الدخول الزجاجية الهولوجرامية */
         .login-card {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(3, 7, 18, 0.95)), url('https://cdn.imagetourls.com/uploads/tyImg/13edEZt7M.jpg');
             background-size: cover;
@@ -146,7 +137,6 @@
             box-shadow: 0 0 35px var(--neon-blue);
         }
 
-        /* 3D Carousel لعرض الألعاب */
         .carousel-container {
             width: 100%;
             height: 380px;
@@ -189,16 +179,8 @@
             box-shadow: 0 0 50px var(--neon-green);
         }
 
-        .game-icon-large {
-            font-size: 4.5rem;
-            filter: drop-shadow(0 0 15px var(--neon-blue));
-        }
-        .game-title-large {
-            font-size: 1.3rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #fff;
-        }
+        .game-icon-large { font-size: 4.5rem; filter: drop-shadow(0 0 15px var(--neon-blue)); }
+        .game-title-large { font-size: 1.3rem; font-weight: bold; letter-spacing: 1px; color: #fff; }
 
         .carousel-controls {
             display: flex;
@@ -206,27 +188,19 @@
             margin-top: 10px;
         }
         .nav-btn {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             border-radius: 50%;
             border: 2px solid var(--neon-blue);
             background: rgba(10, 15, 30, 0.8);
             color: var(--neon-blue);
             font-size: 1.5rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: var(--glow);
             transition: 0.3s;
         }
-        .nav-btn:hover {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 30px var(--neon-blue);
-        }
+        .nav-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); }
 
-        /* الرادار الدائري للمحاكاة */
         .radar-box {
             width: 110px; height: 110px;
             border-radius: 50%;
@@ -246,17 +220,11 @@
             transform-origin: 0 0;
             animation: radarSweep 1.2s linear infinite;
         }
-        @keyframes radarSweep {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes radarSweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* الشاشات الخاصة برقعة اللعب */
         .game-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
             z-index: 15;
             background: rgba(3, 7, 18, 0.85);
         }
@@ -265,9 +233,7 @@
             padding: 15px 20px;
             background: rgba(10, 15, 30, 0.9);
             border-bottom: 2px solid var(--neon-blue);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: var(--glow);
             margin-top: 30px;
         }
@@ -292,15 +258,12 @@
             font-weight: bold;
         }
 
-        /* شبكة ألعاب تفاعلية */
         .grid-5x5 {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
-            width: 100%;
-            max-width: 360px;
-            margin: auto;
-            padding: 15px;
+            width: 100%; max-width: 360px;
+            margin: auto; padding: 15px;
             background: rgba(10, 15, 30, 0.8);
             border: 2px solid var(--neon-blue);
             border-radius: 20px;
@@ -312,88 +275,60 @@
             background: rgba(15, 23, 42, 0.9);
             border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.4rem;
             cursor: pointer;
             transition: all 0.3s;
         }
-        .grid-cell:hover {
-            border-color: var(--neon-green);
-            box-shadow: 0 0 15px var(--neon-green);
-        }
+        .grid-cell:hover { border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
 
         .apple-board {
             flex: 1;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 8px;
-            padding: 15px;
-            overflow-y: auto;
-            align-items: center;
+            display: flex; flex-direction: column-reverse;
+            gap: 8px; padding: 15px;
+            overflow-y: auto; align-items: center;
         }
 
         .apple-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            width: 100%;
-            max-width: 340px;
+            display: flex; gap: 8px; align-items: center;
+            width: 100%; max-width: 340px;
+            opacity: 0.4; pointer-events: none; transition: 0.4s;
         }
+        .apple-row.active { opacity: 1; pointer-events: auto; }
 
         .apple-cell {
-            flex: 1;
-            height: 40px;
+            flex: 1; height: 40px;
             background: rgba(15, 23, 42, 0.9);
             border: 1px solid rgba(0, 240, 255, 0.3);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem;
         }
+        .apple-cell.revealed-apple { background: rgba(0,255,102,0.2); border-color: var(--neon-green); }
+        .apple-cell.revealed-bomb { background: rgba(255,0,85,0.2); border-color: var(--neon-pink); }
 
         .reveal-btn {
             padding: 8px 12px;
-            border-radius: 8px;
-            border: none;
+            border-radius: 8px; border: none;
             background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-            color: #fff;
-            font-weight: bold;
-            font-size: 0.8rem;
+            color: #fff; font-weight: bold; font-size: 0.8rem;
             cursor: pointer;
         }
 
-        /* لوحة التحكم والاشتراكات */
         .admin-panel {
-            width: 90%;
-            max-width: 450px;
+            width: 90%; max-width: 450px;
             background: rgba(10, 15, 30, 0.95);
             border: 2px solid var(--neon-green);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 20px; padding: 20px;
             box-shadow: 0 0 40px rgba(0,255,102,0.3);
-            max-height: 85vh;
-            overflow-y: auto;
+            max-height: 85vh; overflow-y: auto;
         }
-        
-        .id-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 0.8rem;
-        }
-        .id-table th, .id-table td {
-            padding: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-        }
+        .id-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
+        .id-table th, .id-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
     </style>
 </head>
 <body>
 
-<!-- خلفية ثلاثية الأبعاد متحركة -->
 <canvas id="webgl-bg"></canvas>
 
 <div class="cyber-ticker">
@@ -410,11 +345,10 @@
     </div>
 </div>
 
-<!-- لوحة التحكم الخاصة بالمالك -->
+<!-- لوحة التحكم للمالك -->
 <div id="screen-admin" class="app-overlay" style="display: none;">
     <div class="admin-panel">
         <h3 style="color: var(--neon-green); text-align: center; margin-bottom: 15px;">لوحة التحكم والاشتراكات ⚙️</h3>
-        
         <div style="background: rgba(0,240,255,0.05); padding: 10px; border-radius: 10px; border: 1px solid var(--neon-blue); margin-bottom: 10px;">
             <p style="font-size: 0.8rem; color: var(--neon-blue);">تفعيل ID جديد للعميل:</p>
             <input type="text" id="new-client-id" placeholder="رقم الـ ID" style="padding: 8px; margin: 5px 0;">
@@ -423,39 +357,27 @@
                 <option value="3" selected>3 محاولات</option>
                 <option value="5">5 محاولات</option>
             </select>
-            <button class="cyber-btn" onclick="addClientId()" style="padding: 8px;">حفظ وتفعيل הـ ID ⚡</button>
+            <button class="cyber-btn" onclick="addClientId()" style="padding: 8px;">حفظ وتفعيل الـ ID ⚡</button>
         </div>
-
         <div style="max-height: 120px; overflow-y: auto;">
             <table class="id-table">
-                <thead>
-                    <tr>
-                        <th>الـ ID</th>
-                        <th>المحاولات</th>
-                        <th>إجراء</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>الـ ID</th><th>المحاولات</th><th>إجراء</th></tr></thead>
                 <tbody id="ids-table-body"></tbody>
             </table>
         </div>
-
         <button class="cyber-btn" style="background: #444; margin-top: 15px;" onclick="showScreen('screen-login')">إغلاق اللوحة ❌</button>
     </div>
 </div>
 
-<!-- 3D Carousel قائمة الألعاب المستقبلية -->
+<!-- 3D Carousel قائمة الألعاب -->
 <div id="screen-lobby" class="app-overlay" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 650px; margin-top: 30px;">
         <h2 style="font-size: 1.4rem; color: #fff; text-shadow: var(--glow);">اختر اللعبة 🎮</h2>
         <div id="global-attempts-hud" class="attempts-hud">🎮 المحاولات: 3</div>
     </div>
-
     <div class="carousel-container">
-        <div class="carousel-wheel" id="carousel-wheel">
-            <!-- سيتم إنشاؤها عبر JavaScript -->
-        </div>
+        <div class="carousel-wheel" id="carousel-wheel"></div>
     </div>
-
     <div class="carousel-controls">
         <button class="nav-btn" onclick="rotateCarousel(-1)">❮</button>
         <button class="cyber-btn" style="width: 160px;" onclick="launchSelectedGame()">تشغيل اللعبة 🚀</button>
@@ -463,7 +385,7 @@
     </div>
 </div>
 
-<!-- شاشة الرادار المحاكية قبل فتح اللعبة -->
+<!-- شاشة الرادار -->
 <div id="screen-radar" class="app-overlay" style="display: none;">
     <div class="radar-box"></div>
     <div id="radar-status-text" style="font-size: 1.1rem; color: var(--neon-blue); font-weight: bold;">جاري سحب بيانات السيرفر...</div>
@@ -476,50 +398,37 @@
         <span id="active-game-title" style="font-weight: bold; color: var(--neon-blue);">لعبة Apple</span>
         <div id="game-attempts-hud" class="attempts-hud">🎮 3</div>
     </div>
-
-    <!-- شبكة اللعب الحية (تتغير ديناميكياً) -->
     <div id="game-board-area" style="flex: 1; display: flex; align-items: center; justify-content: center;"></div>
 </div>
 
 <script>
-    // --- 1. إعداد الخلفية ثلاثية الأبعاد (Three.js WebGL Engine) ---
+    // --- 1. Three.js Background ---
     const canvas = document.getElementById('webgl-bg');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    // شبكة ليبر هولوجرامية
     const gridHelper = new THREE.GridHelper(60, 40, 0x00f0ff, 0xa800ff);
     gridHelper.position.y = -5;
     scene.add(gridHelper);
 
-    // جسيمات متحركة في الفضاء
     const particlesCount = 700;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particlesCount * 3);
-
-    for(let i=0; i<particlesCount*3; i++) {
-        positions[i] = (Math.random() - 0.5) * 50;
-    }
+    for(let i=0; i<particlesCount*3; i++) { positions[i] = (Math.random() - 0.5) * 50; }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
     const material = new THREE.PointsMaterial({ size: 0.15, color: 0x00f0ff, transparent: true, opacity: 0.8 });
     const particlesMesh = new THREE.Points(geometry, material);
     scene.add(particlesMesh);
-
     camera.position.z = 15;
 
     function animate() {
         requestAnimationFrame(animate);
         gridHelper.position.z += 0.05;
         if (gridHelper.position.z > 2) gridHelper.position.z = 0;
-        
         particlesMesh.rotation.y += 0.001;
-        particlesMesh.rotation.x += 0.0005;
-
         renderer.render(scene, camera);
     }
     animate();
@@ -530,44 +439,25 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- 2. التحكم في قاعدة البيانات المحلية والوصول (Local DB & Security) ---
+    // --- 2. Security & Local DB ---
     const MASTER_KEY = "VIP_CYBER_MASTER_DB";
-    
     function getDB() {
         let db = localStorage.getItem(MASTER_KEY);
-        if(!db) {
-            let defaultDB = { ids: {} };
-            localStorage.setItem(MASTER_KEY, JSON.stringify(defaultDB));
-            return defaultDB;
-        }
+        if(!db) { let def = { ids: {} }; localStorage.setItem(MASTER_KEY, JSON.stringify(def)); return def; }
         return JSON.parse(db);
     }
-
-    function saveDB(data) {
-        localStorage.setItem(MASTER_KEY, JSON.stringify(data));
-    }
-
+    function saveDB(data) { localStorage.setItem(MASTER_KEY, JSON.stringify(data)); }
     let activeClientId = null;
 
     function checkLogin() {
         let val = document.getElementById('pass-input').value.trim();
         if(!val) return alert("يرجى إدخال رقم الـ ID الخاص بك!");
-
-        // 1. كلمة سر المالك
-        if(val === "Walhyma3rf") {
-            renderAdminTable();
-            showScreen('screen-admin');
-            return;
-        }
-
-        // 2. التحقق من الـ ID في القاعدة
+        if(val === "Walhyma3rf") { renderAdminTable(); showScreen('screen-admin'); return; }
         let db = getDB();
         if(db.ids[val]) {
             activeClientId = val;
             updateAttemptsHUD();
-            triggerRadarLoading(() => {
-                showScreen('screen-lobby');
-            });
+            triggerRadarLoading(() => { showScreen('screen-lobby'); });
         } else {
             alert("خطأ: هذا الـ ID غير مفعل! يرجى التواصل مع المالك للتفعيل.");
         }
@@ -577,7 +467,6 @@
         let idVal = document.getElementById('new-client-id').value.trim();
         let attemptsVal = parseInt(document.getElementById('new-client-attempts').value);
         if(!idVal) return alert("أدخل رقم ID صحيح!");
-
         let db = getDB();
         db.ids[idVal] = { attempts: attemptsVal };
         saveDB(db);
@@ -592,11 +481,7 @@
         tbody.innerHTML = "";
         Object.keys(db.ids).forEach(id => {
             let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${id}</td>
-                <td>${db.ids[id].attempts}</td>
-                <td><button onclick="deleteId('${id}')" style="background:none; border:none; color:red; cursor:pointer;">❌</button></td>
-            `;
+            tr.innerHTML = `<td>${id}</td><td>${db.ids[id].attempts}</td><td><button onclick="deleteId('${id}')" style="background:none; border:none; color:red; cursor:pointer;">❌</button></td>`;
             tbody.appendChild(tr);
         });
     }
@@ -611,14 +496,12 @@
     function updateAttemptsHUD() {
         let db = getDB();
         let att = 3;
-        if(activeClientId && db.ids[activeClientId]) {
-            att = db.ids[activeClientId].attempts;
-        }
+        if(activeClientId && db.ids[activeClientId]) { att = db.ids[activeClientId].attempts; }
         document.getElementById('global-attempts-hud').innerText = `🎮 المحاولات: ${att}`;
         document.getElementById('game-attempts-hud').innerText = `🎮 ${att}`;
     }
 
-    // --- 3. دولاب الألعاب ثلاثي الأبعاد 3D Holographic Carousel ---
+    // --- 3. 3D Carousel ---
     const gamesList = [
         { id: 'apple', title: 'Apple 🍎', icon: '🍎' },
         { id: 'gems', title: 'Gems & Mines 💎', icon: '💎' },
@@ -626,23 +509,17 @@
         { id: 'goldmine', title: 'Wild West Gold ⛏️', icon: '⛏️' },
         { id: 'crash', title: 'Crash ✈️', icon: '✈️' }
     ];
-
     let currentCardIndex = 0;
     const wheel = document.getElementById('carousel-wheel');
 
     function buildCarousel() {
         wheel.innerHTML = "";
         const angleStep = 360 / gamesList.length;
-        
         gamesList.forEach((game, index) => {
             const card = document.createElement('div');
             card.className = `carousel-card ${index === 0 ? 'active' : ''}`;
-            card.innerHTML = `
-                <span class="game-icon-large">${game.icon}</span>
-                <span class="game-title-large">${game.title}</span>
-            `;
-            const angle = angleStep * index;
-            card.style.transform = `rotateY(${angle}deg) translateZ(220px)`;
+            card.innerHTML = `<span class="game-icon-large">${game.icon}</span><span class="game-title-large">${game.title}</span>`;
+            card.style.transform = `rotateY(${angleStep * index}deg) translateZ(220px)`;
             wheel.appendChild(card);
         });
     }
@@ -652,7 +529,6 @@
         currentCardIndex = (currentCardIndex + dir + gamesList.length) % gamesList.length;
         const angleStep = 360 / gamesList.length;
         wheel.style.transform = `rotateY(${-currentCardIndex * angleStep}deg)`;
-
         Array.from(wheel.children).forEach((card, idx) => {
             if(idx === currentCardIndex) card.classList.add('active');
             else card.classList.remove('active');
@@ -662,7 +538,6 @@
     function launchSelectedGame() {
         let currentGame = gamesList[currentCardIndex];
         if(currentGame.id === 'crash') return alert("هذه اللعبة غير متوفرة حالياً!");
-
         triggerRadarLoading(() => {
             document.getElementById('active-game-title').innerText = currentGame.title;
             renderGameBoard(currentGame.id);
@@ -670,21 +545,14 @@
         });
     }
 
-    // --- 4. المحاكاة وشاشات التحميل العالية الروعة ---
     function triggerRadarLoading(callback) {
         showScreen('screen-radar');
         let statusText = document.getElementById('radar-status-text');
         let steps = ["جاري الربط مع سيرفر VIP...", "فك تشفير الخلايا...", "تأكيد الإشارات الحية...", "تم الاستخراج بنجاح!"];
         let idx = 0;
-        
         let interval = setInterval(() => {
-            if(idx < steps.length) {
-                statusText.innerText = steps[idx];
-                idx++;
-            } else {
-                clearInterval(interval);
-                if(callback) callback();
-            }
+            if(idx < steps.length) { statusText.innerText = steps[idx]; idx++; }
+            else { clearInterval(interval); if(callback) callback(); }
         }, 600);
     }
 
@@ -693,7 +561,7 @@
         document.getElementById(screenId).style.display = 'flex';
     }
 
-    // --- 5. بناء ألعاب تفاعلية داخل المربع المخصص ---
+    // --- 4. Game Boards (مع ضبط توزيع قنابل لعبة التفاحة بدقة تامة) ---
     function renderGameBoard(gameId) {
         const area = document.getElementById('game-board-area');
         area.innerHTML = "";
@@ -705,37 +573,75 @@
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.innerText = '❓';
-                cell.onclick = () => {
-                    cell.innerText = Math.random() > 0.15 ? '💎' : '💣';
-                };
+                cell.onclick = () => { cell.innerText = Math.random() > 0.15 ? '💎' : '💣'; };
                 grid.appendChild(cell);
             }
             area.appendChild(grid);
-        } else if(gameId === 'apple') {
+        } 
+        else if(gameId === 'apple') {
             const board = document.createElement('div');
             board.className = 'apple-board';
+            let activeAppleRow = 0;
+
+            // توليد بيانات القنابل للـ 10 صفوف بدقة حسب القواعد المطلوبة
+            let rowsData = [];
+            for(let r=0; r<10; r++) {
+                let bombCount = 1; // الافتراضي
+                if (r >= 4 && r <= 6) { bombCount = 2; } // الصفوف 5، 6، 7 (من الأسفل) فيها قنبلتان
+                else if (r >= 7 && r <= 8) { bombCount = 3; } // الصفوف 8، 9 فيها 3 قنابل
+                else if (r === 9) { bombCount = 1; } // الصف الأخير (القمة) فيه قنبلة واحدة
+
+                let bombs = [];
+                while(bombs.length < bombCount) {
+                    let randIdx = Math.floor(Math.random() * 5);
+                    if(!bombs.includes(randIdx)) bombs.push(randIdx);
+                }
+                rowsData.push(bombs);
+            }
+
             for(let r=0; r<10; r++) {
                 const row = document.createElement('div');
-                row.className = 'apple-row';
+                row.className = `apple-row ${r === 0 ? 'active' : ''}`;
+                row.id = `apple-row-${r}`;
+
                 for(let c=0; c<5; c++) {
                     const cell = document.createElement('div');
                     cell.className = 'apple-cell';
                     cell.innerText = '🔒';
                     row.appendChild(cell);
                 }
+
                 const btn = document.createElement('button');
                 btn.className = 'reveal-btn';
                 btn.innerText = `كشف الصف (${r+1})`;
                 btn.onclick = () => {
-                    Array.from(row.children).slice(0, 5).forEach(c => {
-                        c.innerText = Math.random() > 0.3 ? '🍎' : '💣';
-                    });
+                    if (r !== activeAppleRow) return;
+                    let cells = row.querySelectorAll('.apple-cell');
+                    let bombs = rowsData[r];
+                    for(let c=0; c<5; c++) {
+                        if(bombs.includes(c)) {
+                            cells[c].innerText = '💣';
+                            cells[c].className = 'apple-cell revealed-bomb';
+                        } else {
+                            cells[c].innerText = '🍎';
+                            cells[c].className = 'apple-cell revealed-apple';
+                        }
+                    }
+                    btn.style.display = 'none';
+                    activeAppleRow++;
+                    if(activeAppleRow < 10) {
+                        let nextRow = document.getElementById(`apple-row-${activeAppleRow}`);
+                        if(nextRow) nextRow.classList.add('active');
+                    } else {
+                        alert("تهانينا! تم اجتياز شجرة التفاحة بنجاح 🏆");
+                    }
                 };
                 row.appendChild(btn);
                 board.appendChild(row);
             }
             area.appendChild(board);
-        } else if(gameId === 'royal') {
+        } 
+        else if(gameId === 'royal') {
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
             grid.style.borderColor = 'var(--neon-purple)';
@@ -750,8 +656,9 @@
                 grid.appendChild(cell);
             }
             area.appendChild(grid);
-        } else {
-            area.innerHTML = `<div style="color:var(--neon-blue); font-size:1.2rem; font-weight:bold;">جاري بناء اللعبة الخاصة بـ ${gameId}...</div>`;
+        } 
+        else {
+            area.innerHTML = `<div style="color:var(--neon-blue); font-size:1.2rem; font-weight:bold;">جاري تحميل اللعبة...</div>`;
         }
     }
 </script>
