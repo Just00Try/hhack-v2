@@ -350,7 +350,6 @@
         }
     }
 
-    // دالة خصم محاولة واحدة عند تشغيل أي لعبة
     function deductAttempt() {
         if (!activeClientId) return true;
         let db = getDB();
@@ -445,7 +444,6 @@
         let currentGame = gamesList[currentCardIndex];
         if(currentGame.id === 'crash') return alert("هذه اللعبة غير متوفرة حالياً!");
         
-        // الخصم عند بدء تشغيل أي لعبة
         if (!deductAttempt()) return;
 
         triggerRadarLoading(() => {
@@ -471,13 +469,12 @@
         document.getElementById(screenId).style.display = 'flex';
     }
 
-    // --- 4. Game Boards (مع الضبط التام لكل الألعاب) ---
+    // --- 4. Game Boards ---
     function renderGameBoard(gameId) {
         const area = document.getElementById('game-board-area');
         area.innerHTML = "";
 
         if(gameId === 'gems') {
-            // Gems: قنبلتان و 23 جوهرة
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
             let allIndices = [];
@@ -502,7 +499,6 @@
             area.appendChild(grid);
         } 
         else if(gameId === 'apple') {
-            // Apple
             const board = document.createElement('div');
             board.className = 'apple-board';
             let activeAppleRow = 0;
@@ -565,15 +561,24 @@
             area.appendChild(board);
         } 
         else if(gameId === 'royal') {
-            // Royal Feast: ضبط 15 طعام مقابل 10 سم بدقة تامة
+            // Royal Feast: ضبط الخريطة للـ 5 صفوف بالضبط (صف بـ 1 سم، و3 صفوف بـ 2 سم، وصف بـ 3 سم) = 10 سم و15 طعام
             const grid = document.createElement('div');
             grid.className = 'grid-5x5';
             
-            let allPos = [];
-            for(let i=0; i<25; i++) allPos.push(i);
-            allPos.sort(() => Math.random() - 0.5);
-            
-            let poisonIndices = allPos.slice(0, 10); // 10 أماكن للسم ☠️
+            // توزيع عدد زجاجات السم لكل صف من الـ 5 صفوف
+            let poisonDistribution = [1, 2, 2, 2, 3].sort(() => Math.random() - 0.5);
+            let poisonIndices = [];
+
+            for(let r = 0; r < 5; r++) {
+                let poisonCountInRow = poisonDistribution[r];
+                let rowCols = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
+                let chosenCols = rowCols.slice(0, poisonCountInRow);
+                
+                chosenCols.forEach(col => {
+                    poisonIndices.push(r * 5 + col);
+                });
+            }
+
             let foodTypes = ['🍗', '🥩', '🍰', '🍕'];
 
             for(let i=0; i<25; i++) {
@@ -594,7 +599,6 @@
             area.appendChild(grid);
         }
         else if(gameId === 'goldmine') {
-            // Wild West Gold: إصلاح السلالم للعمل من الصف الأول (الأسفل) بالتتابع
             const container = document.createElement('div');
             container.className = 'mine-container';
             container.innerHTML = `
@@ -617,7 +621,6 @@
         }
     }
 
-    // دوال Wild West Gold المصححة 100%
     let mineMode = 2, mineStep = 0, winningPaths = [];
     function initMineSession(mode) {
         mineMode = mode;
