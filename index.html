@@ -114,18 +114,30 @@
         }
 
         /* تنسيقات الألعاب والشاشات */
-        .carousel-container { width: 100%; height: 300px; position: relative; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
-        .carousel-wheel { width: 220px; height: 280px; position: relative; }
+        .carousel-container { width: 100%; height: 260px; position: relative; display: flex; justify-content: center; align-items: center; margin-top: 5px; }
+        .carousel-wheel { width: 200px; height: 240px; position: relative; }
         .carousel-card {
             position: absolute; inset: 0; border-radius: 18px; background: rgba(15, 23, 42, 0.95);
             border: 2px solid var(--neon-blue); display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 15px; gap: 10px; cursor: pointer; opacity: 0; transform: scale(0.85); transition: all 0.25s ease-out; pointer-events: none;
+            padding: 12px; gap: 8px; cursor: pointer; opacity: 0; transform: scale(0.85); transition: all 0.25s ease-out; pointer-events: none;
         }
         .carousel-card.active { opacity: 1; transform: scale(1); pointer-events: auto; border-color: var(--neon-green); box-shadow: 0 0 25px rgba(0, 255, 102, 0.3); }
-        .game-icon-large { font-size: 3.5rem; }
-        .game-title-large { font-size: 1.1rem; font-weight: bold; color: #fff; }
-        .carousel-controls { display: flex; gap: 12px; margin-top: 5px; align-items: center; }
-        .nav-btn { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--neon-blue); background: rgba(10, 15, 30, 0.9); color: var(--neon-blue); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .game-icon-large { font-size: 3rem; }
+        .game-title-large { font-size: 1rem; font-weight: bold; color: #fff; }
+        .carousel-controls { display: flex; gap: 12px; margin-top: 2px; align-items: center; }
+        .nav-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--neon-blue); background: rgba(10, 15, 30, 0.9); color: var(--neon-blue); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* شريط التنبيهات الحي الإضافي */
+        .live-matrix-feed {
+            width: 88%; max-width: 500px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            border-radius: 8px; padding: 6px 12px;
+            margin: 5px auto 0 auto;
+            text-align: center; font-size: 0.72rem;
+            color: var(--neon-green); font-family: monospace;
+            box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.1);
+        }
 
         .radar-box { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--neon-blue); position: relative; margin-bottom: 12px; overflow: hidden; background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%); }
         .radar-box::after { content: ''; position: absolute; top: 50%; left: 50%; width: 50%; height: 50%; background: linear-gradient(45deg, var(--neon-blue), transparent); transform-origin: 0 0; animation: radarSweep 1.2s linear infinite; }
@@ -170,18 +182,16 @@
     <span>⚡ [ CYBER MATRIX VIP SYSTEM ONLINE ] &nbsp;&bull;&nbsp; [ القسائم اليومية: 3 قسائم متاحة الآن 🟢 ]</span>
 </div>
 
-<!-- شاشة تسجيل الدخول بالتعديل الجديد -->
+<!-- شاشة تسجيل الدخول -->
 <div id="screen-login" class="app-overlay">
     <div class="login-card">
         <h2>CYBER ACCESS 🔐</h2>
         
-        <!-- اختيار نوع اللاعب -->
         <div class="type-selector">
             <div id="opt-new" class="type-option selected" onclick="selectUserType('new')">👤 لاعب جديد</div>
             <div id="opt-registered" class="type-option" onclick="selectUserType('registered')">⭐ لاعب حالي</div>
         </div>
 
-        <!-- صندوق الوصف الذكي -->
         <div id="rules-text" class="rules-box">
             💡 <b>لاعب جديد:</b> اكتب الـ ID الخاص بك لطلب التفعيل (تفعيل أول مرة بشحن 200 جنيه).
         </div>
@@ -225,16 +235,22 @@
 
 <!-- قائمة الألعاب -->
 <div id="screen-lobby" class="app-overlay" style="display: none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 88%; max-width: 600px; margin-top: 15px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 88%; max-width: 500px; margin-top: 10px;">
         <h2 style="font-size: 1.1rem; color: #fff;">اختر اللعبة 🎮</h2>
         <div id="global-attempts-hud" class="attempts-hud">🎮 المحاولات: 1</div>
     </div>
+    
+    <!-- شريط الحالات الحي الإضافي -->
+    <div class="live-matrix-feed" id="matrix-feed-text">
+        ⚡ جاري تحليل نشاط السيرفرات الحية...
+    </div>
+
     <div class="carousel-container">
         <div class="carousel-wheel" id="carousel-wheel"></div>
     </div>
     <div class="carousel-controls">
         <button class="nav-btn" onclick="rotateCarousel(-1)">❮</button>
-        <button class="cyber-btn" style="width: 130px; padding:9px; margin:0;" onclick="launchSelectedGame()">تشغيل اللعبة 🚀</button>
+        <button class="cyber-btn" style="width: 120px; padding:8px; margin:0;" onclick="launchSelectedGame()">تشغيل اللعبة 🚀</button>
         <button class="nav-btn" onclick="rotateCarousel(1)">❯</button>
     </div>
 </div>
@@ -294,16 +310,14 @@
 
         let db = getDB();
 
-        // لو الـ ID مفعل وموجود في قاعدة البيانات
         if(db.ids[val]) {
             if(db.ids[val].attempts <= 0) {
-                return alert("⚠️ تنبيه النظام: نفدت محاولات هذا الـ ID. يرجى إرسال إيداع التنشيط وتحديث الجلسة!");
+                return alert("⚠️ تنبيه النظام: نفدت محاولات هذا الـ ID. يرجى إرسال إيداع التنشيط وتحديث الجلسة عبر فيسبوك!");
             }
             activeClientId = val;
             updateAttemptsHUD();
             triggerRadarLoading(() => { showScreen('screen-lobby'); });
         } else {
-            // لو الـ ID مش موجود (وهمي لسه متمش تفعيله)
             if(userMode === 'new') {
                 alert(`🚨 تم تقديم طلب التفعيل للـ ID: (${val}) بنجاح.\n\nمن فضلك تواصل معنا الآن عبر زر فيسبوك لإتمام إيداع التفعيل (200 جنيه) ليقوم السيرفر بفتح الصلاحية لك فورا!`);
             } else {
@@ -367,6 +381,22 @@
         document.getElementById('global-attempts-hud').innerText = `🎮 المحاولات: ${att}`;
         document.getElementById('game-attempts-hud').innerText = `🎮 ${att}`;
     }
+
+    // شريط التنبيهات الحي المتحرك
+    const feedMessages = [
+        "⚡ [تنبيه]: تم رصد ثغرة حية في لعبة (Apple) بنسبة نجاح 95%!",
+        "🔥 [عضو نشط]: تم تحقيق مكسب 850 ج من جلسة التنشيط الأخيرة.",
+        "⚠️ [تحذير]: الجلسات الحالية مغلقة خلال 15 دقيقة لتحديث الخوارزميات.",
+        "🟢 [حالة السيرفر]: مستقر، متبقي 3 محاولات فقط للباقات المجانية."
+    ];
+    let feedIdx = 0;
+    setInterval(() => {
+        let feedElement = document.getElementById('matrix-feed-text');
+        if(feedElement) {
+            feedIdx = (feedIdx + 1) % feedMessages.length;
+            feedElement.innerText = feedMessages[feedIdx];
+        }
+    }, 4000);
 
     // الألعاب والكاروسيل
     const gamesList = [
